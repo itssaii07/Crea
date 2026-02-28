@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Navbar</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+
+  <style>
+    /* ============================
+       Navbar Position & Transitions
+    ============================ */
+    header#navbar {
+      top: 60px;
+      left: 50%;
+      transform: translate(-50%, 0);
+      opacity: 1;
+      z-index: 9999;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    header#navbar.hide {
+      transform: translate(-50%, -140%);
+      opacity: 0;
+    }
+    header#navbar.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    /* ============================
+       Notification Badge
+    ============================ */
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ff4d4d;
+      color: white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    /* ============================
+       Navbar Modes (Artist/User)
+    ============================ */
+    .artist-mode {
+      background-color: #f5f3ff;
+      transition: background-color 0.5s ease;
+    }
+    .user-mode {
+      background-color: #efe8d8;
+      transition: background-color 0.5s ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #navbar { transition: none; }
+    }
+  </style>
+  
+</head>
+<body class="user-mode">
+
+  <header id="navbar"
+    class="bg-orange-800 show flex justify-between items-center px-6 md:px-12 py-1.5 rounded-[40px] fixed left-1/2 transform -translate-x-1/2 w-[95%] shadow-lg z-50">
+
+    <!-- Logo + Nav -->
+    <div class="flex items-center space-x-8">
+      <a href="#" class="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-white/60 rounded-full px-1">
+        <span class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_#facc15]">
+          <span class="text-[#a63a00] font-extrabold text-xl">C</span>
+        </span>
+        <span class="text-white font-extrabold text-2xl">Crèa</span>
+      </a>
+
+      <nav class="hidden md:flex space-x-6 text-white text-base" aria-label="Primary">
+        <a href="home.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white/60 rounded">Home</a>
+        <a href="explore.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white/60 rounded">Explore</a>
+        <a href="about.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white/60 rounded">About</a>
+        <a href="community.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white/60 rounded">Community</a>
+        <a href="request.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white/60 rounded">Requests</a>
+      </nav>
+    </div>
+
+    <!-- Right actions -->
+    <div class="flex items-center space-x-4 text-white relative">
+      <a href="chatbox.html" class="relative hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-white/60 rounded-full p-1">
+        <i class="far fa-comment fa-lg text-white"></i>
+        <span class="notification-badge">0</span>
+      </a>
+
+
+
+      <!-- Profile -->
+      <div class="relative">
+        <button id="profileBtn"
+          class="w-9 h-9 bg-white text-[#a63a00] rounded-full flex items-center justify-center hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#a63a00]/40">
+          <i class="far fa-user"></i>
+        </button>
+
+        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg ring-1 ring-black/5 overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-gray-50">
+            <span id="modeLabel" class="text-sm text-gray-700">User Mode</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="modeSwitch" class="sr-only peer">
+              <div class="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-purple-400 transition-colors duration-300"></div>
+              <span class="absolute left-1 top-0.5 w-4 h-4 bg-white border border-gray-300 rounded-full peer-checked:translate-x-5 transition-transform duration-300"></span>
+            </label>
+          </div>
+          <a href="selfprofile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">View Profile</a>
+          <a href="youractivity.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Activity</a>
+          <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+          <button id="logoutBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <script type="module">
+    import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
+    // Initialize Supabase client
+    const supabaseUrl = 'https://rmjjzoqjulvrbpfczxje.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtamp6b3FqdWx2cmJwZmN6eGplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3NzIwMjksImV4cCI6MjA3MzM0ODAyOX0.C6nHwWizlU30TzLrXnUQFDN4vXMZjwHN243xZCULu2w';
+    window.supabase = createClient(supabaseUrl, supabaseAnonKey);
+  </script>
+</body>
+</html>
+
+
+

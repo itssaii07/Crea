@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>crèa chatbox</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --brand:#a63a00;
+      --brand-900:#922600;
+      --paper:#f6f2ec;
+      --paper-2:#efe8dd;
+      --canvas-1:#f3f0e7;
+      --canvas-2:#e0dcd3;
+      --accent-mint:#c7f9cc;
+      --accent-peach:#ffd6a5;
+      --accent-lav:#e9d5ff;
+      --ink:#2b1b0f;
+    }
+
+    /* force lowercase everywhere */
+    * {
+      text-transform: lowercase !important;
+    }
+
+    html,body{height:100%}
+    body {
+      font-family:'Poppins',sans-serif;
+      margin:0; padding:0; min-height:100vh;
+      display:flex; flex-direction:column;
+      background: radial-gradient(60rem 60rem at 15% -10%, var(--accent-peach) 0%, transparent 40%),
+                  radial-gradient(50rem 50rem at 110% 10%, var(--accent-mint) 0%, transparent 45%),
+                  radial-gradient(60rem 60rem at -10% 110%, var(--accent-lav) 0%, transparent 40%),
+                  linear-gradient(135deg, var(--canvas-1), var(--canvas-2));
+      background-attachment: fixed;
+      animation: bgShift 18s ease-in-out infinite;
+      position:relative;
+      overflow-x:hidden;
+    }
+    @keyframes bgShift{0%{background-position:0 0,0 0,0 0,0 0}50%{background-position:20px -30px,-25px 20px,20px 15px,0 0}100%{background-position:0 0,0 0,0 0,0 0}}
+
+    body:before{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(rgba(0,0,0,.035) 1px, transparent 1.2px) 0 0/6px 6px,
+                  radial-gradient(rgba(0,0,0,.025) .8px, transparent 1.2px) 3px 3px/6px 6px;
+      opacity:.5; mix-blend-mode:multiply;
+    }
+
+    .blob{ position:fixed; filter: blur(28px); opacity:.5; z-index:0; pointer-events:none; }
+    .blob.blob-1{ width:380px; height:380px; left:-120px; top:-80px; background:radial-gradient(circle at 30% 30%, var(--accent-peach), transparent 60%); animation:float1 16s ease-in-out infinite; }
+    .blob.blob-2{ width:440px; height:440px; right:-140px; top:120px; background:radial-gradient(circle at 70% 20%, var(--accent-mint), transparent 55%); animation:float2 18s ease-in-out infinite; }
+    .blob.blob-3{ width:420px; height:420px; left:40%; bottom:-160px; background:radial-gradient(circle at 40% 70%, var(--accent-lav), transparent 60%); animation:float3 20s ease-in-out infinite; }
+    @keyframes float1{50%{transform:translateY(14px) translateX(6px)} }
+    @keyframes float2{50%{transform:translateY(-10px) translateX(-8px)} }
+    @keyframes float3{50%{transform:translateY(16px) translateX(-6px)} }
+
+    .doodle-canvas{ position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5; }
+    .doodle-canvas .scribble{ stroke:var(--brand); stroke-opacity:.25; fill:none; stroke-width:.9; stroke-linecap:round; stroke-linejoin:round; }
+    .doodle-canvas .star{ fill:none; stroke:var(--brand); stroke-opacity:.3; stroke-width:1; }
+    .doodle-canvas .heart{ fill:none; stroke:var(--brand); stroke-opacity:.28; stroke-width:1.1; }
+    .doodle-canvas .dot{ fill:var(--brand); opacity:.12 }
+    .float-slow{ animation:floatY 10s ease-in-out infinite; }
+    .float-slower{ animation:floatY 16s ease-in-out infinite; }
+    .float-rotate{ animation:floatY 14s ease-in-out infinite, spin 40s linear infinite; transform-origin:center; }
+    @keyframes floatY{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(6px) } }
+    @keyframes spin{ to{ transform:rotate(360deg) } }
+
+    .chat-wrapper { flex:1; display:flex; justify-content:center; align-items:flex-start; padding-top:20px; position:relative; z-index:1; }
+    .chat-box {
+      background: var(--paper);
+      width:95%; height:75vh; border-radius:20px; display:flex; overflow:hidden; position:relative; 
+      box-shadow:0 20px 55px rgba(0,0,0,0.25);
+      border:1px solid rgba(0,0,0,0.06);
+      isolation:isolate;
+    }
+    .chat-box:before {
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:22px;
+      padding:1px;
+      background:linear-gradient(135deg, rgba(166,58,0,.5), rgba(255,214,165,.8), rgba(201,255,214,.7));
+      -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite:exclude;
+      pointer-events:none;
+    }
+
+    .chat-list { width:30%; background:var(--paper-2); border-right:1px solid #e7e1d7; display:flex; flex-direction:column; min-height:0; }
+    .chat-list h2 { font-weight:700; padding:1rem; font-size:1.15rem; margin-left:4px; color:var(--ink); position:relative; }
+    .chat-list h2:after{content:""; display:block; width:56px; height:4px; border-radius:999px; margin-top:6px;
+      background:linear-gradient(90deg, var(--brand), #f59e0b, var(--accent-peach)); opacity:.7; }
+    .chat-list input { margin:0 1rem 1rem 1rem; padding:0.65rem 0.75rem; border-radius:12px; border:1px solid #d5cfc6; transition: all 0.2s; background:#fbf8f3; }
+    .chat-list input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(166,58,0,0.1); outline:none; }
+    .chat-items-container { flex:1; overflow-y:auto; max-height: calc(75vh - 120px); overscroll-behavior: contain; }
+    .chat-items-container { scrollbar-width: thin; scrollbar-color: #e1d9cd transparent; }
+    .chat-items-container::-webkit-scrollbar{ width:10px }
+    .chat-items-container::-webkit-scrollbar-thumb{ background:#e1d9cd; border-radius:999px }
+    .chat-item { display:flex; align-items:center; gap:.75rem; padding:0.85rem 1rem; cursor:pointer; border-bottom:1px solid #e9e3da; transition:transform .18s ease, background .18s ease; }
+    .chat-item:hover { background:#f5e9dd; transform: translateX(6px); }
+    .chat-item img { width:36px; height:36px; border-radius:50%; transition: transform 0.3s ease; box-shadow:0 4px 10px rgba(0,0,0,.06); }
+    .chat-item img:hover { transform: scale(1.08); }
+
+    .chat-content { flex:1; display:flex; flex-direction:column; position:relative; min-height:0; }
+    .placeholder-screen { flex:1; display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--brand); flex-direction:column; }
+    .placeholder-screen .logo-badge{ width:70px; height:70px; border-radius:18px; background:#fff; box-shadow:0 12px 30px rgba(0,0,0,.12); display:grid; place-items:center; }
+
+    .chat-main { flex:1; display:flex; flex-direction:column; min-height:0; }
+    .chat-header { display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1rem; background:linear-gradient(90deg,var(--brand),var(--brand-900)); color:white; transition: background 0.3s ease; box-shadow:0 8px 22px rgba(166,58,0,.25); }
+    .chat-header:hover { filter:saturate(1.02) brightness(1.01); }
+    .chat-header .left { display:flex; align-items:center; gap:0.65rem; }
+    .chat-header img { width:38px; height:38px; border-radius:50%; transition: transform 0.3s ease; box-shadow:0 6px 14px rgba(0,0,0,.15); }
+    .chat-header img:hover { transform: scale(1.08) rotate(-4deg); }
+    .close-chat-left { background:rgba(255,255,255,.12); border:none; color:white; cursor:pointer; font-size:16px; padding:6px 8px; border-radius:10px; margin-left:auto; transition: transform 0.2s, background .2s; }
+    .close-chat-left:hover { transform: scale(1.08); background:rgba(255,255,255,.18); }
+
+    .messages { flex:1; padding:1rem; overflow-y:auto; background:linear-gradient(180deg,#fbf8f3, #faf7f1); display:flex; flex-direction:column; gap:0.55rem; min-height:0; }
+    .messages::-webkit-scrollbar{ width:10px }
+    .messages::-webkit-scrollbar-thumb{ background:#e7ded2; border-radius:999px }
+    .msg { max-width:72%; padding:0.65rem 1rem; border-radius:16px; opacity:0; transform: translateY(10px); animation: fadeInUp 0.28s forwards; box-shadow:0 8px 18px rgba(0,0,0,.06); }
+    .msg.received { background:#f1f1f1; align-self:flex-start; }
+    .msg.sent { background:var(--brand); color:white; align-self:flex-end; }
+    .msg img { max-width:220px; max-height:220px; border-radius:14px; display:block; margin-top:6px; box-shadow:0 10px 20px rgba(0,0,0,.15); }
+    @keyframes fadeInUp { to { opacity:1; transform: translateY(0); } }
+
+    .input-area { display:flex; align-items:center; gap:.4rem; padding:0.6rem 1rem; border-top:1px solid #e6e2dd; background:#f8f5ef; }
+    .input-area input { flex:1; padding:0.7rem .9rem; border-radius:20px; border:1px solid #d7d1c8; transition: all 0.2s; background:#fff; }
+    .input-area input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(166,58,0,0.1); outline: none; }
+    .input-area button { background:none; border:none; margin:0 0.15rem; cursor:pointer; }
+    .input-area .send-btn { background:var(--brand); color:white; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; transition: transform 0.18s ease, background .2s; box-shadow:0 10px 20px rgba(166,58,0,.25); }
+    .input-area .send-btn:hover { transform: translateY(-1px) scale(1.06); background:var(--brand-900); }
+    #attachBtn{ padding:.25rem .4rem; border-radius:8px; }
+    #attachBtn:hover { color:var(--brand); transform: translateY(-1px) scale(1.06); transition:0.18s; background:rgba(166,58,0,.06); }
+
+    @media (max-width:1000px){.chat-list{width:35%}}
+    @media (max-width:780px){.chat-list{width:40%}}
+    @media (max-width:640px){.chat-list{display:none}.chat-wrapper{padding-top:20px}.chat-box{height:82vh}}
+  </style>
+  
+</head>
+<body>
+  <!-- blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- doodles -->
+  <svg class="doodle-canvas" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <path class="scribble float-slow" d="M-5 15 C 10 5, 22 25, 35 15 S 60 5, 75 15 S 90 25, 105 15" />
+    <path class="scribble float-slower" d="M-5 85 C 10 75, 22 95, 35 85 S 60 75, 75 85 S 90 95, 105 85" />
+    <g class="float-rotate" style="animation-duration:18s">
+      <polygon class="star" points="12,10 13.8,13.2 17.4,13.7 15,16.2 15.6,19.8 12,18.2 8.4,19.8 9,16.2 6.6,13.7 10.2,13.2"/>
+      <polygon class="star" points="92,20 93.8,23.2 97.4,23.7 95,26.2 95.6,29.8 92,28.2 88.4,29.8 89,26.2 86.6,23.7 90.2,23.2"/>
+      <polygon class="star" points="84,84 85.6,86.8 88.8,87.2 86.6,89.4 87.2,92.6 84,91.2 80.8,92.6 81.4,89.4 79.2,87.2 82.4,86.8"/>
+    </g>
+    <g class="float-slow" style="animation-duration:12s">
+      <path class="heart" d="M20 68 C20 63, 26 63, 26 68 C26 73, 20 74, 23 78 C26 74, 20 73, 20 68 Z"/>
+      <path class="heart" d="M75 8 C75 3, 81 3, 81 8 C81 13, 75 14, 78 18 C81 14, 75 13, 75 8 Z"/>
+    </g>
+    <circle class="dot" cx="6" cy="60" r="1.2"/>
+    <circle class="dot" cx="94" cy="68" r="1.2"/>
+    <circle class="dot" cx="50" cy="8" r="1"/>
+    <circle class="dot" cx="10" cy="92" r=".9"/>
+  </svg>
+
+  <!-- back -->
+  <div class="px-6 md:px-12 py-4 relative z-10">
+    <button id="backButton" type="button" onclick="window.location.href='/home.html'" class="text-white bg-[var(--brand)] px-4 py-2 rounded-full shadow hover:bg-[var(--brand-900)] transition flex items-center gap-2">
+      <i class="fas fa-arrow-left"></i><span>back</span>
+    </button>
+  </div>
+
+  <div class="chat-wrapper">
+    <div class="chat-box">
+      <div class="chat-list">
+        <h2>chats</h2>
+        <input type="text" id="chatSearch" placeholder="search artists...">
+        <div class="chat-items-container" id="chatListContainer">
+
+        </div>
+      </div>
+
+      <div class="chat-content">
+        <div class="placeholder-screen" id="placeholder">
+          <div class="logo-badge">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M4 19c6-1 8-5 8-10" stroke="var(--brand)" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 9c.6-1.1 1.3-2.1 2.2-3 1.4-1.5 3.8-1.3 4.9.5.7 1.1.6 2.5-.2 3.5-.7.9-1.6 1.8-2.5 2.6-1.4 1.3-2.9 2.5-4.4 3.6" stroke="var(--brand)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="mt-3">crèa</div>
+        </div>
+
+        <div class="chat-main hidden" id="chatMain">
+          <div class="chat-header">
+            <div class="left">
+              <img class="chat-pic" src="" alt="profile">
+              <span class="chat-name">artist</span>
+            </div>
+            <div id="chat-actions" class="ml-auto flex gap-2"></div>
+            <button class="close-chat-left" id="closeLeft" aria-label="close chat"><i class="fas fa-times"></i></button>
+          </div>
+
+          <div class="messages" id="messages"></div>
+
+          <div class="input-area">
+            <input type="text" id="messageInput" placeholder="type a message...">
+            <button id="attachBtn" title="attach image"><i class="fas fa-camera"></i></button>
+            <button class="send-btn" id="sendBtn" title="send"><i class="fas fa-paper-plane"></i></button>
+            <input type="file" id="fileInput" accept="image/*" style="display:none" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import supabase from './js/supabaseClient.js';
+    import authService from './js/auth.js';
+    import realtimeService from './js/realtime.js';
+
+    let currentUser = null;
+    let currentChatId = null;
+    let chats = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('DOM fully loaded and parsed');
+
+        currentUser = await authService.getCurrentUser();
+        if (!currentUser) {
+            window.location.href = 'auth.html';
+            return;
+        }
+
+        await loadChats();
+
+        realtimeService.subscribeToChatList(currentUser.id, (payload) => {
+            loadChats();
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatId = urlParams.get('chatId');
+        const userId = urlParams.get('userId');
+        const requestId = urlParams.get('requestId');
+
+        if (chatId) {
+            openChat(chatId);
+        } else if (userId && requestId) {
+            openChatWithUser(userId, requestId);
+        }
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Attach button triggers file input click
+        const attachBtn = document.getElementById('attachBtn');
+        const fileInput = document.getElementById('fileInput');
+        attachBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file input change for image upload
+        fileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                await uploadImage(file);
+                fileInput.value = ''; // reset file input
+            }
+        });
+
+        // Back button -> go to home page (use absolute path for reliability)
+        const backBtn = document.getElementById('backButton');
+        if (backBtn) {
+            backBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = '/home.html';
+            });
+        }
+
+        document.getElementById('chatSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredChats = chats.filter(chat => {
+                const otherParticipant = chat.participants.find(p => p.id !== currentUser.id);
+                return otherParticipant.username.toLowerCase().includes(searchTerm);
+            });
+            renderChatList(filteredChats);
+        });
+
+        // Fix: Add event listener for close chat button in chat header
+        const closeLeftBtn = document.getElementById('closeLeft');
+        if (closeLeftBtn) {
+            closeLeftBtn.addEventListener('click', () => {
+                // Close current chat view and show placeholder
+                document.getElementById('chatMain').classList.add('hidden');
+                document.getElementById('placeholder').classList.remove('hidden');
+                currentChatId = null;
+            });
+        }
+    });
+
+    async function loadChats() {
+        try {
+            const response = await authService.apiCall('/api/chats');
+            if (response.ok) {
+                chats = await response.json();
+                renderChatList(chats);
+            }
+        } catch (error) {
+            console.error('Error loading chats:', error);
+        }
+    }
+
+    function renderChatList(chatList) {
+        const chatListContainer = document.getElementById('chatListContainer');
+        chatListContainer.innerHTML = '';
+        chatList.forEach(chat => {
+            const otherParticipant = chat.participants.find(p => p.id !== currentUser.id);
+            if (!otherParticipant) return;
+
+            const chatItem = document.createElement('div');
+            chatItem.className = 'chat-item';
+            chatItem.dataset.chatId = chat.id;
+            chatItem.innerHTML = `
+                <img src="${otherParticipant.avatar_url || 'https://i.pravatar.cc/150?img=1'}" alt="">
+                <div>
+                    <div class="font-medium text-[15px]">${otherParticipant.username}</div>
+                    <div class="text-xs text-gray-500">${chat.last_message?.text || ''}</div>
+                </div>
+            `;
+            chatItem.addEventListener('click', () => openChat(chat.id));
+            chatListContainer.appendChild(chatItem);
+        });
+    }
+
+    function removeChatFromList(chatId) {
+        const chatListContainer = document.getElementById('chatListContainer');
+        const chatItems = Array.from(chatListContainer.querySelectorAll('.chat-item'));
+        const chatToRemove = chatItems.find(item => item.dataset.chatId === String(chatId));
+        if (chatToRemove) {
+            chatToRemove.remove();
+        }
+        // Reset view if current chat is removed
+        if (String(currentChatId) === String(chatId)) {
+            document.getElementById('chatMain').classList.add('hidden');
+            document.getElementById('placeholder').classList.remove('hidden');
+            currentChatId = null;
+        }
+    }
+
+    async function openChat(chatId) {
+        if (currentChatId) {
+            realtimeService.unsubscribe(`chat_messages_${currentChatId}`);
+        }
+        currentChatId = chatId;
+
+        document.getElementById('placeholder').classList.add('hidden');
+        document.getElementById('chatMain').classList.remove('hidden');
+
+        try {
+            const response = await authService.apiCall(`/api/chats/${chatId}`);
+            if (response.ok) {
+                const { chat, messages } = await response.json();
+                renderChat(chat, messages);
+                markMessagesAsRead(chatId);
+                
+                // Load persistent notifications
+                await loadChatNotifications(chatId);
+                
+const user = currentUser;
+            realtimeService.subscribeToChatMessages(chatId, (payload) => {
+                const msg = payload.new;
+                const sender = msg?.sender_id || msg?.senderId;
+                const type = sender === user.id ? 'sent' : 'received';
+                renderMessage(msg, type);
+            });            } else if (response.status === 404) {
+                // If chat not found but we have other user id in URL, create it then open
+                const otherUserId = new URLSearchParams(window.location.search).get('otherUserId');
+                if (otherUserId) {
+                    const createResp = await authService.apiCall('/api/chats', {
+                        method: 'POST',
+                        body: JSON.stringify({ otherUserId })
+                    });
+                    if (createResp.ok) {
+                        const created = await createResp.json();
+                        const newId = created.id;
+                        history.replaceState({}, '', `?chatId=${newId}`);
+                        await openChat(newId);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error opening chat:', error);
+        }
+    }
+
+    async function openChatWithUser(userId, requestId) {
+        try {
+            const response = await authService.apiCall(`/api/chats`, {
+                method: 'POST',
+                body: JSON.stringify({ otherUserId: userId, requestId: requestId })
+            });
+            if (response.ok) {
+                const chat = await response.json();
+                openChat(chat.id);
+            }
+        } catch (error) {
+            console.error('Error opening chat with user:', error);
+        }
+    }
+
+    function renderChat(chat, messages) {
+        const otherParticipant = chat.participants.find(p => p.id !== currentUser.id);
+        if (!otherParticipant) return;
+
+        document.querySelector('.chat-name').textContent = otherParticipant.username;
+        document.querySelector('.chat-pic').src = otherParticipant.avatar_url || 'https://i.pravatar.cc/150?img=1';
+
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = '';
+        // sort by created_at ascending to show oldest first
+        messages
+            .slice()
+            .sort((a, b) => new Date(a.created_at || a.createdAt) - new Date(b.created_at || b.createdAt))
+            .forEach(message => {
+                const sender = message.sender_id || message.senderId;
+                const type = sender === currentUser.id ? 'sent' : 'received';
+                renderMessage(message, type);
+            });
+
+        const chatActions = document.getElementById('chat-actions');
+        chatActions.innerHTML = '';
+        if (chat.request_id) {
+            chatActions.innerHTML = `
+                <button id="doneBtn" class="close-chat-left">Mark as Done</button>
+            `;
+            document.getElementById('doneBtn').addEventListener('click', () => markAsDone(chat.request_id)); // triggers backend /api/requests/:id/mark-done
+        }
+    }
+
+    function renderMessage(message, type) {
+        const messagesContainer = document.getElementById('messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${type}`;
+        msgDiv.textContent = message.text;
+
+        // If message has an image, render it below the text
+        if (message.image_url || message.imageUrl) {
+            const img = document.createElement('img');
+            img.src = message.image_url || message.imageUrl;
+            msgDiv.appendChild(img);
+        }
+
+        messagesContainer.innerHTML += msgDiv.outerHTML;
+        // keep chronological order (oldest -> newest) and auto-scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const text = messageInput.value.trim();
+        if (text && currentChatId) {
+            const message = {
+                text: text,
+            };
+            try {
+                const response = await authService.apiCall(`/api/chats/${currentChatId}/messages`, {
+                    method: 'POST',
+                    body: JSON.stringify(message)
+                });
+                if (response.ok) {
+                    renderMessage({ ...message, sender_id: currentUser.id }, 'sent');
+                    messageInput.value = '';
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        }
+    }
+
+    async function createNewChat() {
+        const otherUserId = prompt("Enter the ID of the user you want to chat with:");
+        if (otherUserId) {
+            try {
+                const response = await authService.apiCall('/api/chats', {
+                    method: 'POST',
+                    body: JSON.stringify({ otherUserId })
+                });
+                if (response.ok) {
+                    const chat = await response.json();
+                    openChat(chat.id);
+                }
+            } catch (error) {
+                console.error('Error creating new chat:', error);
+            }
+        }
+    }
+
+    async function markMessagesAsRead(chatId) {
+        try {
+            await authService.apiCall(`/api/chats/${chatId}/messages/read`, {
+                method: 'POST'
+            });
+        } catch (error) {
+            console.error('Error marking messages as read:', error);
+        }
+    }
+
+    async function loadChatNotifications(chatId) {
+        try {
+            const response = await authService.apiCall(`/api/chats/${chatId}/notifications`);
+            if (response.ok) {
+                const { notifications } = await response.json();
+                notifications.forEach(notification => {
+                    const notificationType = notification.payload?.notification_type || 'info';
+                    showChatNotification(notification.message, notificationType, true);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading chat notifications:', error);
+        }
+    }
+
+
+    async function markAsDone(requestId) {
+        try {
+            const response = await authService.apiCall(`/api/requests/${requestId}/mark-done`, {
+                method: 'POST'
+            });
+            if (response.ok) {
+                const data = await response.json();
+
+                if (data.error === 'creator_must_initiate') {
+                    // Show chat notification when requester clicks mark done before creator
+                    showChatNotification('creator has to initiate the action', 'info');
+                    return;
+                } else if (data.error) {
+                    showChatNotification(data.error, 'error');
+                    return;
+                }
+
+                if (data.completed) {
+                    showChatNotification('order finished', 'success');
+                    removeChatFromList(currentChatId);
+                    // Show order completed screen in place of chatbox for creator side
+                    removeChatConnection();
+                } else if (data.creator_marked_first) {
+                    // Hide notification locally once creator marks done first to avoid showing requester prompt
+                    hideChatNotifications();
+                    showChatNotification('order marked as done, waiting for response', 'info');
+                } else {
+                    // No requester prompt shown on creator side anymore
+                    hideChatNotifications();
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                showChatNotification(errorData.error || 'marked as done, waiting for response', 'error');
+            }
+        } catch (error) {
+            console.error('Error marking request as done:', error);
+            showChatNotification('marked as done, waiting for response', 'error');
+        }
+    }
+
+    function showChatNotification(message, type, isPersistent = false) {
+        const messagesContainer = document.getElementById('messages');
+        const notificationDiv = document.createElement('div');
+        notificationDiv.className = `notification ${type}`;
+        notificationDiv.style.cssText = `
+            text-align: center;
+            margin: 10px auto;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            max-width: 80%;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.3s forwards;
+        `;
+        
+        if (type === 'success') {
+            notificationDiv.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            notificationDiv.style.color = 'white';
+        } else if (type === 'error') {
+            notificationDiv.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            notificationDiv.style.color = 'white';
+        } else if (type === 'info') {
+            notificationDiv.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+            notificationDiv.style.color = 'white';
+        }
+        
+        notificationDiv.textContent = message;
+        messagesContainer.appendChild(notificationDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // For "order finished" notifications, remove chat after both parties have seen it
+        if (type === 'success' && message === 'order finished') {
+            setTimeout(() => {
+                removeChatConnection();
+            }, 3000); // Give users 3 seconds to see the notification
+        }
+        
+        // Make all notifications permanent - never remove them
+        // Notifications stay in chat like messages
+    }
+
+    async function removeChatConnection() {
+        // Chat is already removed from database by backend
+        // Redirect to order completion page
+        window.location.href = '/order-completed.html';
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remove after 4 seconds
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }, 4000);
+    }
+  async function uploadImage(file) {
+      if (!currentChatId) {
+          alert('Please open a chat before uploading images.');
+          return;
+      }
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+          // Get auth header without Content-Type for FormData
+          const session = await authService.getCurrentSession();
+          if (!session) {
+              alert('Not authenticated.');
+              return;
+          }
+
+          const response = await fetch(`/api/chats/${currentChatId}/upload-image`, {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${session.access_token}`
+              },
+              body: formData,
+          });
+          if (response.ok) {
+              const data = await response.json();
+              if (data.imageUrl) {
+                  await sendMessageWithImage(data.imageUrl);
+              } else {
+                  alert('Image upload failed: No image URL returned.');
+              }
+          } else {
+              alert('Image upload failed.');
+          }
+      } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Error uploading image.');
+      }
+  }
+
+  async function sendMessageWithImage(imageUrl) {
+      if (!currentChatId) return;
+      const message = {
+          text: '',
+          imageUrl: imageUrl,
+      };
+      try {
+          const response = await authService.apiCall(`/api/chats/${currentChatId}/messages`, {
+              method: 'POST',
+              body: JSON.stringify(message),
+          });
+          if (response.ok) {
+              renderMessage({ ...message, sender_id: currentUser.id }, 'sent');
+          }
+      } catch (error) {
+          console.error('Error sending image message:', error);
+      }
+  }
+  </script>
+</body>
+</html>

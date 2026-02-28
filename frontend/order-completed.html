@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Completed - crèa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --brand:#a63a00;
+      --brand-900:#922600;
+      --paper:#f6f2ec;
+      --paper-2:#efe8dd;
+      --canvas-1:#f3f0e7;
+      --canvas-2:#e0dcd3;
+      --accent-mint:#c7f9cc;
+      --accent-peach:#ffd6a5;
+      --accent-lav:#e9d5ff;
+      --ink:#2b1b0f;
+    }
+
+    /* force lowercase everywhere */
+    * {
+      text-transform: lowercase !important;
+    }
+
+    html,body{height:100%}
+    body {
+      font-family:'Poppins',sans-serif;
+      margin:0; padding:0; min-height:100vh;
+      display:flex; flex-direction:column;
+      background: radial-gradient(60rem 60rem at 15% -10%, var(--accent-peach) 0%, transparent 40%),
+                  radial-gradient(50rem 50rem at 110% 10%, var(--accent-mint) 0%, transparent 45%),
+                  radial-gradient(60rem 60rem at -10% 110%, var(--accent-lav) 0%, transparent 40%),
+                  linear-gradient(135deg, var(--canvas-1), var(--canvas-2));
+      background-attachment: fixed;
+      animation: bgShift 18s ease-in-out infinite;
+      position:relative;
+      overflow-x:hidden;
+    }
+    @keyframes bgShift{0%{background-position:0 0,0 0,0 0,0 0}50%{background-position:20px -30px,-25px 20px,20px 15px,0 0}100%{background-position:0 0,0 0,0 0,0 0}}
+
+    body:before{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(rgba(0,0,0,.035) 1px, transparent 1.2px) 0 0/6px 6px,
+                  radial-gradient(rgba(0,0,0,.025) .8px, transparent 1.2px) 3px 3px/6px 6px;
+      opacity:.5; mix-blend-mode:multiply;
+    }
+
+    .blob{ position:fixed; filter: blur(28px); opacity:.5; z-index:0; pointer-events:none; }
+    .blob.blob-1{ width:380px; height:380px; left:-120px; top:-80px; background:radial-gradient(circle at 30% 30%, var(--accent-peach), transparent 60%); animation:float1 16s ease-in-out infinite; }
+    .blob.blob-2{ width:440px; height:440px; right:-140px; top:120px; background:radial-gradient(circle at 70% 20%, var(--accent-mint), transparent 55%); animation:float2 18s ease-in-out infinite; }
+    .blob.blob-3{ width:420px; height:420px; left:40%; bottom:-160px; background:radial-gradient(circle at 40% 70%, var(--accent-lav), transparent 60%); animation:float3 20s ease-in-out infinite; }
+    @keyframes float1{50%{transform:translateY(14px) translateX(6px)} }
+    @keyframes float2{50%{transform:translateY(-10px) translateX(-8px)} }
+    @keyframes float3{50%{transform:translateY(16px) translateX(-6px)} }
+
+    .doodle-canvas{ position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5; }
+    .doodle-canvas .scribble{ stroke:var(--brand); stroke-opacity:.25; fill:none; stroke-width:.9; stroke-linecap:round; stroke-linejoin:round; }
+    .doodle-canvas .star{ fill:none; stroke:var(--brand); stroke-opacity:.3; stroke-width:1; }
+    .doodle-canvas .heart{ fill:none; stroke:var(--brand); stroke-opacity:.28; stroke-width:1.1; }
+    .doodle-canvas .dot{ fill:var(--brand); opacity:.12 }
+    .float-slow{ animation:floatY 10s ease-in-out infinite; }
+    .float-slower{ animation:floatY 16s ease-in-out infinite; }
+    .float-rotate{ animation:floatY 14s ease-in-out infinite, spin 40s linear infinite; transform-origin:center; }
+    @keyframes floatY{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(6px) } }
+    @keyframes spin{ to{ transform:rotate(360deg) } }
+
+    .completion-container {
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:2rem;
+      position:relative;
+      z-index:1;
+    }
+
+    .completion-card {
+      background: var(--paper);
+      border-radius:24px;
+      padding:3rem 2rem;
+      text-align:center;
+      max-width:500px;
+      width:100%;
+      box-shadow:0 20px 55px rgba(0,0,0,0.25);
+      border:1px solid rgba(0,0,0,0.06);
+      position:relative;
+    }
+
+    .completion-card:before {
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:26px;
+      padding:1px;
+      background:linear-gradient(135deg, rgba(166,58,0,.5), rgba(255,214,165,.8), rgba(201,255,214,.7));
+      -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite:exclude;
+      pointer-events:none;
+    }
+
+    .completion-icon {
+      width:80px;
+      height:80px;
+      border-radius:20px;
+      background:#fff;
+      box-shadow:0 12px 30px rgba(0,0,0,.12);
+      display:grid;
+      place-items:center;
+      margin:0 auto 1.5rem;
+      position:relative;
+      z-index:1;
+    }
+
+    .completion-icon svg {
+      width:40px;
+      height:40px;
+      color:var(--brand);
+    }
+
+    .completion-title {
+      font-size:2rem;
+      font-weight:700;
+      color:var(--ink);
+      margin-bottom:0.5rem;
+      position:relative;
+      z-index:1;
+    }
+
+    .completion-subtitle {
+      font-size:1rem;
+      color:#666;
+      margin-bottom:2rem;
+      position:relative;
+      z-index:1;
+    }
+
+    .completion-actions {
+      display:flex;
+      gap:1rem;
+      justify-content:center;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+
+    .completion-btn {
+      background:var(--brand);
+      color:white;
+      border:none;
+      padding:0.75rem 1.5rem;
+      border-radius:12px;
+      font-weight:500;
+      cursor:pointer;
+      transition: transform 0.2s ease, background 0.2s;
+      box-shadow:0 8px 20px rgba(166,58,0,.25);
+    }
+
+    .completion-btn:hover {
+      transform: translateY(-2px);
+      background:var(--brand-900);
+    }
+
+    .completion-btn.secondary {
+      background:#f3f0e7;
+      color:var(--ink);
+      border:1px solid #e1d9cd;
+    }
+
+    .completion-btn.secondary:hover {
+      background:#e9e3da;
+    }
+
+    @media (max-width:640px) {
+      .completion-card {
+        padding:2rem 1.5rem;
+      }
+      .completion-actions {
+        flex-direction:column;
+        align-items:center;
+      }
+      .completion-btn {
+        width:100%;
+        max-width:200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- doodles -->
+  <svg class="doodle-canvas" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <path class="scribble float-slow" d="M-5 15 C 10 5, 22 25, 35 15 S 60 5, 75 15 S 90 25, 105 15" />
+    <path class="scribble float-slower" d="M-5 85 C 10 75, 22 95, 35 85 S 60 75, 75 85 S 90 95, 105 85" />
+    <g class="float-rotate" style="animation-duration:18s">
+      <polygon class="star" points="12,10 13.8,13.2 17.4,13.7 15,16.2 15.6,19.8 12,18.2 8.4,19.8 9,16.2 6.6,13.7 10.2,13.2"/>
+      <polygon class="star" points="92,20 93.8,23.2 97.4,23.7 95,26.2 95.6,29.8 92,28.2 88.4,29.8 89,26.2 86.6,23.7 90.2,23.2"/>
+      <polygon class="star" points="84,84 85.6,86.8 88.8,87.2 86.6,89.4 87.2,92.6 84,91.2 80.8,92.6 81.4,89.4 79.2,87.2 82.4,86.8"/>
+    </g>
+    <g class="float-slow" style="animation-duration:12s">
+      <path class="heart" d="M20 68 C20 63, 26 63, 26 68 C26 73, 20 74, 23 78 C26 74, 20 73, 20 68 Z"/>
+      <path class="heart" d="M75 8 C75 3, 81 3, 81 8 C81 13, 75 14, 78 18 C81 14, 75 13, 75 8 Z"/>
+    </g>
+    <circle class="dot" cx="6" cy="60" r="1.2"/>
+    <circle class="dot" cx="94" cy="68" r="1.2"/>
+    <circle class="dot" cx="50" cy="8" r="1"/>
+    <circle class="dot" cx="10" cy="92" r=".9"/>
+  </svg>
+
+  <!-- back -->
+  <div class="px-6 md:px-12 py-4 relative z-10">
+    <button id="backButton" type="button" onclick="window.location.href='/home.html'" class="text-white bg-[var(--brand)] px-4 py-2 rounded-full shadow hover:bg-[var(--brand-900)] transition flex items-center gap-2">
+      <i class="fas fa-arrow-left"></i><span>back</span>
+    </button>
+  </div>
+
+  <div class="completion-container">
+    <div class="completion-card">
+      <div class="completion-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="completion-title">order completed</div>
+      <div class="completion-subtitle">thank you for using crèa! your order has been successfully finished.</div>
+      <div class="completion-actions">
+        <button class="completion-btn" onclick="window.location.href='/home.html'">back to home</button>
+        <button class="completion-btn secondary" onclick="window.location.href='/youractivity.html'">view activity</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Get order details from URL parameters if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestId = urlParams.get('requestId');
+    const title = urlParams.get('title');
+
+    // Update the page with order details if available
+    if (title) {
+      document.querySelector('.completion-subtitle').textContent = `thank you for using crèa! your order "${title}" has been successfully finished.`;
+    }
+
+    // Back button functionality
+    const backBtn = document.getElementById('backButton');
+    if (backBtn) {
+      backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = '/home.html';
+      });
+    }
+  </script>
+</body>
+</html>

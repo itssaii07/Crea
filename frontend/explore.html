@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>crèa explore</title>
+
+    <!-- Tailwind (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons & Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* force all visible text to appear lowercase */
+        * {
+            text-transform: lowercase !important;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overscroll-behavior-y: contain;
+            background-color: #f3f0e7;
+        }
+
+        header {
+            z-index: 9999;
+        }
+
+        /* Navbar show/hide positions */
+        #navbar {
+            top: 60px;
+            opacity: 1;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        #navbar.hide {
+            transform: translate(-50%, -140%);
+            opacity: 0;
+        }
+
+        #navbar.show {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ff4d4d;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #navbar {
+                transition: none;
+            }
+        }
+
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: #a63a00 #efe8d8;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #efe8d8;
+            border-radius: 9999px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #a63a00;
+            border-radius: 9999px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #873100;
+        }
+    </style>
+
+</head>
+
+<body class="min-h-screen">
+    <!-- Header -->
+    <div id="navbar-mount"></div>
+
+    <main class="max-w-7xl px-4 md:px-8 pt-40 pb-10 flex flex-col md:flex-row gap-10 min-h-[calc(100vh-72px)]">
+        <aside class="md:w-64 flex-shrink-0 sticky top-20 self-start ml-4">
+            <h2 class="font-bold text-lg mb-4 select-none border-b border-gray-300 pb-2">categories</h2>
+
+            <!-- Category Search Bar -->
+            <div class="mb-3">
+                <input id="category-search" type="text" placeholder="Search categories..."
+                    class="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a63a00]" />
+            </div>
+
+            <nav id="category-list"
+                class="flex flex-col space-y-3 text-gray-800 font-normal text-base overflow-y-auto pr-2 scrollbar-thin max-h-80 md:max-h-[60vh]"
+                aria-label="Categories">
+
+            </nav>
+
+            <!-- SORT control -->
+            <div class="mt-6">
+                <label class="block font-semibold mb-1 select-none" for="sortSelect">Sort</label>
+                <select id="sortSelect"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a63a00]">
+                    <option value="none">none</option>
+                    <option value="username-asc">username (a → z)</option>
+                    <option value="username-desc">username (z → a)</option>
+                </select>
+            </div>
+
+            <div class="mt-4">
+                <label class="block font-semibold mb-1 select-none" for="username">Username</label>
+                <input id="username" name="username" placeholder="Enter username" type="text"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a63a00]" />
+            </div>
+
+            <div class="mt-4">
+                <label class="block font-semibold mb-1 select-none" for="keywords">Keywords</label>
+                <input id="keywords" name="keywords" placeholder="Enter keywords" type="text"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a63a00]" />
+            </div>
+        </aside>
+
+        <section id="products-grid"
+            class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 content-start items-start">
+
+        </section>
+    </main>
+
+    <script type="module">
+        import authService from './js/auth.js';
+
+        let allArtists = [];
+        let allCategories = [];
+        let selectedCategory = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const currentUser = await authService.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            await loadCategories();
+            await loadArtists();
+
+            // Add event listeners
+            document.getElementById('username').addEventListener('input', applyFiltersAndSort);
+            document.getElementById('keywords').addEventListener('input', applyFiltersAndSort);
+            document.getElementById('sortSelect').addEventListener('change', applyFiltersAndSort);
+            document.getElementById('category-search').addEventListener('input', filterCategories);
+
+            document.getElementById('category-list').addEventListener('click', (e) => {
+                if (e.target.tagName === 'A') {
+                    e.preventDefault();
+                    const categoryData = e.target.getAttribute('data-category');
+                    selectedCategory = categoryData === 'all' ? null : categoryData;
+
+                    // Update active state
+                    document.querySelectorAll('#category-list a').forEach(a => {
+                        a.classList.remove('text-[#a63a00]', 'font-semibold');
+                        a.classList.add('hover:text-[#a63a00]');
+                    });
+                    e.target.classList.add('text-[#a63a00]', 'font-semibold');
+                    e.target.classList.remove('hover:text-[#a63a00]');
+
+                    applyFiltersAndSort();
+                }
+            });
+        });
+
+        async function loadArtists(filters = {}) {
+            try {
+                const params = new URLSearchParams();
+
+                // Add filters to params
+                if (filters.category) {
+                    params.append('category', filters.category);
+                }
+                if (filters.keyword) {
+                    params.append('keyword', filters.keyword);
+                }
+                if (filters.q) {
+                    params.append('q', filters.q);
+                }
+
+                const response = await authService.apiCall(`/api/explore/artists?${params.toString()}`);
+                if (response.ok) {
+                    allArtists = await response.json();
+                    renderArtists(allArtists);
+                }
+            } catch (error) {
+                console.error('Error loading artists:', error);
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/explore/categories');
+                if (response.ok) {
+                    const categories = await response.json();
+                    allCategories = categories;
+                    renderCategories(allCategories);
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        function renderCategories(categories) {
+            const categoryList = document.getElementById('category-list');
+
+            // Create "All" option with proper active state
+            const isAllSelected = selectedCategory === null;
+            const allOption = `<a class="hover:text-[#a63a00] ${isAllSelected ? 'text-[#a63a00] font-semibold' : ''}" href="#" data-category="all">all</a>`;
+
+            // Create category options with proper active states
+            const categoryOptions = categories.map(cat => {
+                const isSelected = selectedCategory === cat.name;
+                return `<a class="hover:text-[#a63a00] ${isSelected ? 'text-[#a63a00] font-semibold' : ''}" href="#" data-category="${cat.name}">${cat.name}</a>`;
+            }).join('');
+
+            categoryList.innerHTML = allOption + categoryOptions;
+        }
+
+        function filterCategories() {
+            const searchTerm = document.getElementById('category-search').value.toLowerCase();
+
+            if (!searchTerm) {
+                // Show all categories including "All" option
+                renderCategories(allCategories);
+            } else {
+                // Filter categories but always show "All" if it matches
+                const filteredCategories = allCategories.filter(cat =>
+                    cat.name.toLowerCase().includes(searchTerm)
+                );
+
+                // Check if "all" matches the search term
+                const categoryList = document.getElementById('category-list');
+                let allOption = '';
+                if ('all'.includes(searchTerm)) {
+                    const isAllSelected = selectedCategory === null;
+                    allOption = `<a class="hover:text-[#a63a00] ${isAllSelected ? 'text-[#a63a00] font-semibold' : ''}" href="#" data-category="all">all</a>`;
+                }
+
+                const categoryOptions = filteredCategories.map(cat => {
+                    const isSelected = selectedCategory === cat.name;
+                    return `<a class="hover:text-[#a63a00] ${isSelected ? 'text-[#a63a00] font-semibold' : ''}" href="#" data-category="${cat.name}">${cat.name}</a>`;
+                }).join('');
+
+                categoryList.innerHTML = allOption + categoryOptions;
+            }
+        }
+
+        function renderArtists(artists) {
+            const grid = document.getElementById('products-grid');
+            if (artists.length === 0) {
+                grid.innerHTML = '<p class="text-center text-gray-500 col-span-full">There seem to be no artists in this category.</p>';
+                return;
+            }
+            grid.innerHTML = artists.map(artist => `
+            <a href="artistprofile.html?id=${artist.id}" class="block rounded-xl overflow-hidden shadow-md bg-white hover:-translate-y-1 transform transition">
+                <img src="${artist.profile_pic_url || 'assets/images/basket-weaving-800.jpg'}" alt="${artist.username} - portfolio cover" loading="lazy" decoding="async" class="w-full h-56 object-cover" />
+                <div class="p-6">
+                    <h3 class="text-center text-lg font-semibold text-gray-900">${artist.username}</h3>
+                    <div class="mt-6 grid grid-cols-3 gap-4 text-center items-baseline">
+                        <div><div class="text-xl font-extrabold text-[#a63a00]">${artist.stats?.orders || 0}</div><div class="text-xs text-gray-600 mt-1">Orders</div></div>
+                        <div><div class="text-xl font-extrabold text-[#a63a00]">${artist.stats?.creations || 0}</div><div class="text-xs text-gray-600 mt-1">Creations</div></div>
+                        <div><div class="text-xl font-extrabold text-[#a63a00]">${Math.floor((artist.stats?.experience || 0) / 31536000)} yrs</div><div class="text-xs text-gray-600 mt-1">Experience</div></div>
+                    </div>
+                </div>
+            </a>
+        `).join('');
+        }
+
+        async function applyFiltersAndSort() {
+            const username = document.getElementById('username').value.trim();
+            const keywords = document.getElementById('keywords').value.trim();
+            const sort = document.getElementById('sortSelect').value;
+
+            // Build filters object for API call
+            const filters = {};
+
+            if (selectedCategory) {
+                filters.category = selectedCategory;
+            }
+
+            if (username) {
+                filters.q = username;
+            }
+
+            if (keywords) {
+                // Send first keyword to backend (backend expects single keyword)
+                const firstKeyword = keywords.split(',')[0].trim();
+                if (firstKeyword) {
+                    filters.keyword = firstKeyword;
+                }
+            }
+
+            // Load artists with filters from backend
+            await loadArtists(filters);
+
+            // Apply additional client-side filtering for multiple keywords
+            let filteredArtists = [...allArtists];
+
+            if (keywords) {
+                const keywordArray = keywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+                if (keywordArray.length > 1) {
+                    // Filter for additional keywords beyond the first one
+                    filteredArtists = filteredArtists.filter(artist => {
+                        if (!artist.keywords || !Array.isArray(artist.keywords)) return false;
+                        const artistKeywords = artist.keywords.map(k => k.toLowerCase());
+                        return keywordArray.every(k => artistKeywords.includes(k));
+                    });
+                }
+            }
+
+            // Apply sorting
+            if (sort === 'username-asc') {
+                filteredArtists.sort((a, b) => a.username.localeCompare(b.username));
+            } else if (sort === 'username-desc') {
+                filteredArtists.sort((a, b) => b.username.localeCompare(a.username));
+            }
+
+            renderArtists(filteredArtists);
+        }
+
+    </script>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

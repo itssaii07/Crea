@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>crèa artist-profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      text-transform: lowercase !important;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      overscroll-behavior-y: contain;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .img-hover:hover {
+      transform: scale(1.05);
+      transition: transform 0.4s ease;
+      cursor: pointer;
+    }
+
+    .keywordBtn:hover {
+      background: #a63a00;
+      color: white;
+      transform: scale(1.05);
+      transition: all 0.3s ease;
+    }
+
+    /* Request Modal Styles */
+    :root {
+      --brand: #a63a00;
+      --brand-dark: #8c2e00;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      justify-content: center;
+      align-items: center;
+      z-index: 10010;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, .15);
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-content input,
+    .modal-content select,
+    .modal-content textarea {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: 'Poppins', sans-serif;
+      transition: .3s;
+    }
+
+    .modal-content input:focus,
+    .modal-content select:focus,
+    .modal-content textarea:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 2px rgba(166, 58, 0, .2);
+    }
+
+    .modal-content button {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      transition: .3s;
+      margin-top: 8px;
+      font-weight: 500;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .modal-content button:hover {
+      background: var(--brand-dark);
+      transform: translateY(-1px);
+    }
+
+    .price-input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 0 10px;
+      background-color: #fff;
+      margin-bottom: 12px;
+      transition: .3s;
+    }
+
+    .price-input-wrapper:focus-within {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 2px rgba(166, 58, 0, .2);
+    }
+
+    .price-symbol {
+      color: #666;
+      font-weight: 500;
+      margin-right: 8px;
+    }
+
+    #reqPrice {
+      border: none !important;
+      padding: 10px 0 !important;
+      margin-bottom: 0 !important;
+      width: 100% !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .modal-actions {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 10px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.96));
+    }
+
+    .modal-actions button {
+      flex: 1;
+    }
+
+    #reqDesc {
+      height: 150px;
+      min-height: 80px;
+    }
+
+    #previewImg {
+      max-width: 100%;
+      width: auto;
+      max-height: 50vh;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin: 10px 0;
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-[#f3f0e7] to-[#f8efe2] min-h-screen text-gray-800">
+  <!-- header -->
+  <div class="px-6 md:px-12 py-4 flex justify-between items-center">
+    <button id="backButton"
+      class="text-white bg-[#a63a00] px-4 py-2 rounded-full shadow-md hover:shadow-lg hover:bg-[#872f00] transition flex items-center gap-2">
+      <i class="fas fa-arrow-left"></i><span>back</span>
+    </button>
+  </div>
+
+  <!-- profile section -->
+  <section class="max-w-5xl mx-auto px-4 md:px-8 mt-6 fade-in">
+    <div
+      class="flex flex-col md:flex-row items-center md:items-start md:space-x-10 bg-white/40 backdrop-blur-lg p-6 rounded-2xl shadow-lg">
+      <!-- left -->
+      <div class="flex flex-col items-center md:items-start text-center md:text-left">
+        <div class="relative profile-wrapper rounded-full shadow-lg hover:shadow-xl transition">
+          <img id="profilePic" src="p1.png" alt="profile picture"
+            class="w-36 h-36 rounded-full object-cover border-4 border-[#a63a00]" />
+        </div>
+        <p id="usernameText" class="text-[#a63a00] font-semibold text-sm mt-2 select-none"></p>
+        <p id="bioText" class="mt-2 max-w-xs text-sm text-gray-600 leading-relaxed"></p>
+      </div>
+
+      <!-- right -->
+      <div class="flex flex-col items-center md:items-start mt-6 md:mt-0 w-full md:w-auto space-y-4">
+        <div class="flex space-x-8 justify-center md:justify-start">
+          <div class="text-center">
+            <p id="orders-count" class="text-xl font-bold text-[#a63a00]">0</p>
+            <p class="text-sm text-gray-600">orders</p>
+          </div>
+          <div class="text-center">
+            <p id="creations-count" class="text-xl font-bold text-[#a63a00]">0</p>
+            <p class="text-sm text-gray-600">creations</p>
+          </div>
+          <div class="text-center">
+            <p id="experience-count" class="text-xl font-bold text-[#a63a00]">0 yrs</p>
+            <p class="text-sm text-gray-600">experience</p>
+          </div>
+        </div>
+
+        <!-- category -->
+        <div id="categoryView" class="text-sm text-gray-700">
+          <span class="font-semibold">category:</span>
+          <div id="categoryChips" class="inline-flex flex-wrap gap-2 ml-3"></div>
+        </div>
+
+        <!-- keywords -->
+        <div id="keywordsView" class="flex flex-wrap gap-2 justify-center md:justify-start"></div>
+
+        <!-- Make a Request button moved below keywords -->
+        <div class="mt-4 flex justify-center md:justify-start">
+          <button id="make-request-btn"
+            class="hidden text-white bg-green-500 px-4 py-2 rounded-full shadow-md hover:shadow-lg hover:bg-green-600 transition">
+            Make a Request
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- creations -->
+  <section class="max-w-5xl mx-auto px-4 md:px-8 mt-10 fade-in">
+    <h2 class="text-lg font-semibold text-[#a63a00] mb-4">creations</h2>
+    <div id="creationsGallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"></div>
+  </section>
+
+  <!-- social links -->
+  <section class="max-w-5xl mx-auto px-4 md:px-8 mt-10 pb-10 fade-in">
+    <h2 class="text-lg font-semibold text-[#a63a00] mb-4">social links</h2>
+    <div class="space-y-2">
+      <p class="text-sm text-gray-700 flex items-center gap-2">
+        <i class="fas fa-globe text-[#a63a00]"></i>
+        website: <a id="websiteLink" href="#" target="_blank" class="text-[#a63a00] underline">not provided</a>
+      </p>
+      <p class="text-sm text-gray-700 flex items-center gap-2">
+        <i class="fab fa-instagram text-[#a63a00]"></i>
+        instagram: <a id="instagramLink" href="#" target="_blank" class="text-[#a63a00] underline">not provided</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- lightbox -->
+  <div id="lightbox" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden cursor-pointer"
+    onclick="closeLightbox()">
+    <span class="absolute top-4 right-6 text-white text-4xl font-bold cursor-pointer"
+      onclick="event.stopPropagation(); closeLightbox();">&times;</span>
+    <img id="lightboxImage" src="" alt="preview" class="max-w-[90vw] max-h-[90vh] object-contain cursor-default"
+      onclick="event.stopPropagation()">
+  </div>
+
+  <!-- Request Modal -->
+  <div id="requestModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="makeReqTitle"
+    onclick="closeRequestModal()">
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <h3 id="makeReqTitle" style="font-size:1.4em; margin-bottom:15px; color:var(--brand);">Make a Request</h3>
+      <input id="reqTitle" type="text" placeholder="Title">
+
+      <input id="reqLoc" type="text" placeholder="Location">
+
+      <div class="price-input-wrapper">
+        <span class="price-symbol">₹</span>
+        <input id="reqPrice" type="number" placeholder="Price">
+      </div>
+
+      <textarea id="reqDesc" placeholder="Description" rows="4"></textarea>
+      <input id="reqKeywords" type="text" placeholder="Keywords (comma separated)">
+      <select id="reqCat">
+        <option value="">Select Category</option>
+      </select>
+
+      <input type="file" id="reqImage" accept="image/*" />
+      <img id="previewImg" alt="Preview">
+
+      <div class="modal-actions">
+        <button id="submitReq" type="button">Submit Request</button>
+        <button type="button" onclick="closeRequestModal()" style="background:#aaa;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import authService from './js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('id');
+
+      // Handle missing or invalid user ID
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        console.warn('Invalid user ID, redirecting to explore');
+        window.location.href = 'explore.html';
+        return;
+      }
+
+      const currentUser = await authService.getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      await loadProfile(userId);
+      document.getElementById('backButton').addEventListener('click', () => history.back());
+    });
+
+    async function loadProfile(userId) {
+      try {
+        const response = await authService.apiCall(`/api/user/${userId}`);
+        if (response.ok) {
+          const profile = await response.json();
+          updateUI(profile);
+        }
+      } catch (err) {
+        console.error('Error loading profile:', err);
+      }
+    }
+
+    let currentArtistId = null;
+
+    function ensureProtocol(url) {
+      if (!url || url === '#') return '#';
+      if (!/^https?:\/\//i.test(url)) {
+        return `https://${url}`;
+      }
+      return url;
+    }
+
+    function updateUI(profile) {
+      currentArtistId = profile.id; // Store the artist ID for request submission
+
+      document.getElementById('usernameText').innerText = profile.username || '';
+      document.getElementById('bioText').innerText = profile.bio || '';
+      document.getElementById('profilePic').src = profile.profilePicUrl || 'assets/1.png';
+      document.getElementById('websiteLink').href = ensureProtocol(profile.links?.website);
+      document.getElementById('websiteLink').textContent = profile.links?.website || 'not provided';
+      document.getElementById('instagramLink').href = ensureProtocol(profile.links?.instagram);
+      document.getElementById('instagramLink').textContent = profile.links?.instagram || 'not provided';
+
+      renderCategoryChips(profile.categories || []);
+      renderKeywordsView(profile.keywords || []);
+
+      console.log('Creations Gallery:', profile.creationsGallery);
+      const gallery = document.getElementById('creationsGallery');
+      gallery.innerHTML = '';
+      if (Array.isArray(profile.creationsGallery)) {
+        profile.creationsGallery.forEach(item => {
+          const el = document.createElement('div');
+          el.classList.add('fade-in');
+          el.innerHTML = `
+            <div class="aspect-square bg-white/60 backdrop-blur-md rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+              <img src="${item.imageUrl || item.url}" alt="${item.title || item.caption || ''}" class="w-full h-full object-cover img-hover" onclick="openLightbox(this)" />
+            </div>
+            <p class="text-sm text-gray-700 mt-2">${item.title || item.caption || ''}</p>
+          `;
+          gallery.appendChild(el);
+        });
+      }
+
+      document.getElementById('orders-count').textContent = profile.stats?.orders || 0;
+      document.getElementById('creations-count').textContent = profile.creationsGallery.length || 0;
+      const experienceYears = Math.floor((profile.stats?.experience || 0) / 31536000000); // Corrected ms calc
+      document.getElementById('experience-count').textContent = `${experienceYears} yrs`;
+
+      const makeRequestBtn = document.getElementById('make-request-btn');
+      const requestContainer = document.querySelector('.mt-4.flex.justify-center.md\\:justify-start') || makeRequestBtn.parentElement;
+
+      if (profile.artist_mode_enabled) {
+        makeRequestBtn.classList.remove('hidden');
+        makeRequestBtn.onclick = () => openRequestModal();
+        // Clear any previous message
+        const notAvailableMsg = requestContainer.querySelector('p.text-gray-500');
+        if (notAvailableMsg) notAvailableMsg.remove();
+      } else {
+        // Hide the button
+        makeRequestBtn.classList.add('hidden');
+        // Show the message if not already there
+        if (!requestContainer.querySelector('p.text-gray-500')) {
+          const msg = document.createElement('p');
+          msg.className = 'text-center text-gray-500';
+          msg.textContent = "This user isn't taking requests";
+          requestContainer.appendChild(msg);
+        }
+      }
+    }
+
+    function renderCategoryChips(categories) {
+      const container = document.getElementById('categoryChips');
+      container.innerHTML = '';
+      if (!categories.length) {
+        container.innerHTML = '<span>not specified</span>';
+        return;
+      }
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = "keywordBtn text-sm text-[#a63a00] bg-white border border-[#a63a00] px-3 py-1 rounded-full shadow-sm";
+        btn.textContent = cat;
+        container.appendChild(btn);
+      });
+    }
+
+    function renderKeywordsView(keywords) {
+      const container = document.getElementById('keywordsView');
+      container.innerHTML = '';
+      keywords.forEach(word => {
+        const btn = document.createElement('button');
+        btn.className = "keywordBtn text-sm text-[#a63a00] bg-white border border-[#a63a00] px-3 py-1 rounded-full shadow-sm";
+        btn.textContent = `#${word}`;
+        container.appendChild(btn);
+      });
+    }
+
+    window.openLightbox = img => {
+      document.getElementById('lightbox').classList.remove('hidden');
+      document.getElementById('lightboxImage').src = img.src;
+    };
+    window.closeLightbox = () => {
+      document.getElementById('lightbox').classList.add('hidden');
+    };
+
+    // Request Modal Functions
+    window.openRequestModal = async () => {
+      await loadCategories();
+      document.getElementById('requestModal').style.display = 'flex';
+    };
+
+    window.closeRequestModal = () => {
+      document.getElementById('requestModal').style.display = 'none';
+      // Clear form
+      document.getElementById('reqTitle').value = '';
+      document.getElementById('reqLoc').value = '';
+      document.getElementById('reqPrice').value = '';
+      document.getElementById('reqDesc').value = '';
+      document.getElementById('reqKeywords').value = '';
+      document.getElementById('reqCat').value = '';
+      document.getElementById('reqImage').value = '';
+      document.getElementById('previewImg').style.display = 'none';
+    };
+
+    // Load categories for the request modal
+    async function loadCategories() {
+      try {
+        const response = await authService.apiCall('/api/explore/categories');
+        if (response.ok) {
+          const categories = await response.json();
+          const reqCat = document.getElementById('reqCat');
+          reqCat.innerHTML = '<option value="">Select Category</option>';
+          categories.forEach(cat => {
+            reqCat.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+          });
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    }
+
+    // Handle image preview
+    document.getElementById('reqImage').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      const preview = document.getElementById('previewImg');
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+
+    // Submit request
+    document.getElementById('submitReq').addEventListener('click', async () => {
+      try {
+        const currentUser = await authService.getCurrentUser();
+        if (!currentUser) {
+          window.location.href = 'auth.html';
+          return;
+        }
+
+        const imageFile = document.getElementById('reqImage').files[0];
+        let imageUrl = '';
+
+        if (imageFile) {
+          const formData = new FormData();
+          formData.append('image', imageFile);
+
+          // Upload image first
+          // Use fetch directly to handle form data or a specific helper that doesn't force JSON content type
+          const headers = await authService.getAuthHeader();
+          delete headers['Content-Type']; // Let browser set boundary
+
+          const uploadRes = await fetch('/api/upload/image', {
+            method: 'POST',
+            headers: headers,
+            body: formData
+          });
+
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            imageUrl = uploadData.url; // The upload endpoint returns 'url' not 'imageUrl'
+          } else {
+            alert('Failed to upload image. Submitting without it (or aborting).');
+            // Decide whether to abort. For now, let's abort.
+            throw new Error('Image upload failed');
+          }
+        }
+
+        const requestData = {
+          title: document.getElementById('reqTitle').value,
+          description: document.getElementById('reqDesc').value,
+          category: document.getElementById('reqCat').value,
+          keywords: document.getElementById('reqKeywords').value.split(',').map(k => k.trim()),
+          location: document.getElementById('reqLoc').value,
+          price: document.getElementById('reqPrice').value,
+          imageUrl: imageUrl,
+          targetArtistId: currentArtistId
+        };
+
+        const response = await authService.apiCall('/api/requests', {
+          method: 'POST',
+          body: JSON.stringify(requestData)
+        });
+
+        if (response.ok) {
+          closeRequestModal();
+          alert('Request submitted successfully! The artist will be notified.');
+        } else {
+          const error = await response.text();
+          alert('Failed to create request: ' + error);
+        }
+      } catch (error) {
+        console.error('Error creating request:', error);
+        alert('An error occurred while creating the request');
+      }
+    });
+
+  </script>
+  <script>
+    // mount shared navbar
+    (function () {
+      const mount = document.getElementById('navbar-mount');
+      if (!mount) return;
+      fetch('navbar.html')
+        .then(r => r.text())
+        .then(html => {
+          mount.innerHTML = html;
+          const s = document.createElement('script');
+          s.src = 'navbar.js';
+          s.type = 'module';
+          document.body.appendChild(s);
+        })
+        .catch(() => { });
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+/* ============================
+   Navbar Position & Transitions
+============================ */
+header#navbar {
+  top: 60px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  opacity: 1;
+  z-index: 9999;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+/* Show/hide navbar on scroll */
+header#navbar.hide {
+  transform: translate(-50%, -140%);
+  opacity: 0;
+}
+
+header#navbar.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+
+/* ============================
+   Navbar Modes (Artist/User)
+============================ */
+.artist-mode {
+  background-color: #f5f3ff;
+  transition: background-color 0.5s ease;
+}
+
+.user-mode {
+  background-color: #efe8d8;
+  transition: background-color 0.5s ease;
+}
+
+/* Accessibility: Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  #navbar {
+    transition: none;
+  }
+}

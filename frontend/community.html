@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>crèa community</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+  <meta name="theme-color" content="#a63a00" />
+
+  <style>
+    * {
+      text-transform: lowercase !important;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #cfcece;
+      color: #333;
+    }
+
+    .section-title {
+      font-size: 2.7rem;
+      font-weight: 700;
+      color: #4a2c1a;
+    }
+
+    .btn-primary-custom {
+      background-color: #a63a00;
+      color: #fff;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary-custom:hover {
+      background-color: #8b3000;
+    }
+
+    .rating .fa-star {
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .rating .fa-star.selected,
+    .rating:hover .fa-star {
+      color: #ffc107;
+    }
+
+    .rating:hover .fa-star:hover~.fa-star {
+      color: #e0e0e0;
+    }
+
+    .modal {
+      display: none;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body class="user-mode" style="padding-top: 120px; display: flex; flex-direction: column; min-height: 100vh;">
+
+  <div id="navbar-mount"></div>
+
+  <main style="flex-grow: 1;">
+    <div class="max-w-screen-15xl mx-auto px-6 py-2">
+
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-4xl font-bold section-title">community reviews</h1>
+        <button id="create-post-btn" class="btn-primary-custom px-6 py-3 rounded-full font-semibold text-lg">create a
+          post</button>
+      </div>
+
+      <div class="flex justify-center my-4">
+        <div class="flex rounded-full bg-gray-300 p-1">
+          <button id="consumer-toggle"
+            class="px-6 py-2 rounded-full bg-white text-gray-800 font-semibold shadow">consumer</button>
+          <button id="artist-toggle" class="px-6 py-2 rounded-full text-gray-600 font-semibold">artist</button>
+        </div>
+      </div>
+
+      <!-- Reviews Display Section -->
+      <section id="reviews-container" class="grid grid-cols-1 gap-8">
+        <!-- Reviews will be dynamically inserted here -->
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Modal for Creating Reviews -->
+  <div id="review-modal" class="modal fixed inset-0 bg-black bg-opacity-50 justify-center p-4 pt-32">
+    <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 relative">
+      <button id="close-modal-btn"
+        class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+
+      <!-- Artists Section -->
+      <section class="mb-16" id="artist-review-section">
+        <h2 class="text-3xl font-bold mb-8 text-center">artists reviewing customers</h2>
+        <div class="max-w-4xl mx-auto">
+          <form id="artist-review-form">
+            <div class="mb-6">
+              <label for="customer-username" class="block text-lg font-medium text-gray-700 mb-2">customer's
+                username</label>
+              <input type="text" id="customer-username" name="customer-username"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="e.g., artlover123" required>
+            </div>
+            <div class="mb-6">
+              <label for="artist-subject" class="block text-lg font-medium text-gray-700 mb-2">subject</label>
+              <input type="text" id="artist-subject" name="subject"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="e.g., great communication" required>
+            </div>
+            <div class="mb-6">
+              <label class="block text-lg font-medium text-gray-700 mb-2">rating</label>
+              <div class="rating flex items-center" data-rating="0">
+                <i class="fas fa-star text-3xl" data-value="1"></i>
+                <i class="fas fa-star text-3xl" data-value="2"></i>
+                <i class="fas fa-star text-3xl" data-value="3"></i>
+                <i class="fas fa-star text-3xl" data-value="4"></i>
+                <i class="fas fa-star text-3xl" data-value="5"></i>
+                <input type="hidden" name="rating" id="artist-rating" value="0" required>
+              </div>
+            </div>
+            <div class="mb-6">
+              <label for="artist-description" class="block text-lg font-medium text-gray-700 mb-2">description</label>
+              <textarea id="artist-description" name="description" rows="5"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="describe your experience..." required></textarea>
+            </div>
+            <div class="mb-8">
+              <label for="artist-pictures" class="block text-lg font-medium text-gray-700 mb-2">upload pictures (up to
+                5)</label>
+              <input type="file" id="artist-pictures" name="pictures" multiple accept="image/*"
+                class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn-primary-custom px-8 py-3 rounded-full font-semibold text-lg">submit
+                review</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Customers Section -->
+      <section id="customer-review-section">
+        <h2 class="text-3xl font-bold mb-8 text-center">customers reviewing artists</h2>
+        <div class="max-w-4xl mx-auto">
+          <form id="customer-review-form">
+            <div class="mb-6">
+              <label for="artist-username" class="block text-lg font-medium text-gray-700 mb-2">artist's
+                username</label>
+              <input type="text" id="artist-username" name="artist-username"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="e.g., creativehands" required>
+            </div>
+            <div class="mb-6">
+              <label for="customer-subject" class="block text-lg font-medium text-gray-700 mb-2">subject</label>
+              <input type="text" id="customer-subject" name="subject"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="e.g., amazing artwork!" required>
+            </div>
+            <div class="mb-6">
+              <label class="block text-lg font-medium text-gray-700 mb-2">rating</label>
+              <div class="rating flex items-center" data-rating="0">
+                <i class="fas fa-star text-3xl" data-value="1"></i>
+                <i class="fas fa-star text-3xl" data-value="2"></i>
+                <i class="fas fa-star text-3xl" data-value="3"></i>
+                <i class="fas fa-star text-3xl" data-value="4"></i>
+                <i class="fas fa-star text-3xl" data-value="5"></i>
+                <input type="hidden" name="rating" id="customer-rating" value="0" required>
+              </div>
+            </div>
+            <div class="mb-6">
+              <label for="customer-description" class="block text-lg font-medium text-gray-700 mb-2">description</label>
+              <textarea id="customer-description" name="description" rows="5"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="describe your experience..." required></textarea>
+            </div>
+            <div class="mb-8">
+              <label for="customer-pictures" class="block text-lg font-medium text-gray-700 mb-2">upload pictures (up to
+                5)</label>
+              <input type="file" id="customer-pictures" name="pictures" multiple accept="image/*"
+                class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn-primary-custom px-8 py-3 rounded-full font-semibold text-lg">submit
+                review</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Modal for displaying images -->
+  <div id="image-modal" class="modal fixed inset-0 bg-black bg-opacity-75 justify-center items-center p-4">
+    <div class="bg-white p-4 rounded-lg max-w-4xl max-h-[90vh] relative">
+      <button id="close-image-modal-btn"
+        class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+      <img id="modal-image" src="" alt="Enlarged review image" class="max-w-full max-h-[80vh] object-contain">
+    </div>
+  </div>
+
+  <footer class="bg-[#a63a00] text-white text-center py-12 px-4 rounded-t-[30px] mt-16">
+    <h3 class="text-2xl font-semibold mb-4">About Crèa</h3>
+    <p class="max-w-3xl mx-auto mb-4 text-lg leading-relaxed">Crèa is a space for creativity, sharing, and exploration.
+      Whether you're browsing for inspiration or building your dream project, we're here to empower your ideas and
+      connect you with a community that values innovation and expression.</p>
+    <div class="text-sm">
+      <p>&copy; 2025 Crèa. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import authService from './js/auth.js';
+    // Removed Supabase import
+  </script>
+  <script>
+    // Helper functions that use localStorage directly (don't rely on authService module loading)
+    function getAuthToken() {
+      return localStorage.getItem('token');
+    }
+
+    function getAuthHeaders() {
+      const token = getAuthToken();
+      return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+    }
+
+    function getCurrentUserId() {
+      const token = getAuthToken();
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.id;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function getCurrentUser() {
+      const token = getAuthToken();
+      if (!token) return null;
+      try {
+        const response = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          return await response.json();
+        }
+      } catch (e) { }
+      return null;
+    }
+
+    async function apiCall(url, options = {}) {
+      const headers = getAuthHeaders();
+      const mergedHeaders = { ...headers, ...options.headers };
+      return fetch(url, { ...options, headers: mergedHeaders });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const createPostBtn = document.getElementById('create-post-btn');
+      const reviewModal = document.getElementById('review-modal');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      const reviewsContainer = document.getElementById('reviews-container');
+      const artistToggle = document.getElementById('artist-toggle');
+      const consumerToggle = document.getElementById('consumer-toggle');
+      const artistReviewSection = document.getElementById('artist-review-section');
+      const customerReviewSection = document.getElementById('customer-review-section');
+      const imageModal = document.getElementById('image-modal');
+      const closeModalImageBtn = document.getElementById('close-image-modal-btn');
+      const modalImage = document.getElementById('modal-image');
+      let allReviews = [];
+
+      // Default state
+      customerReviewSection.style.display = 'block';
+      artistReviewSection.style.display = 'none';
+
+      artistToggle.addEventListener('click', () => {
+        artistToggle.classList.add('bg-white', 'shadow');
+        artistToggle.classList.remove('text-gray-600');
+        artistToggle.classList.add('text-gray-800');
+
+        consumerToggle.classList.remove('bg-white', 'shadow');
+        consumerToggle.classList.add('text-gray-600');
+        consumerToggle.classList.remove('text-gray-800');
+
+        customerReviewSection.style.display = 'none';
+        artistReviewSection.style.display = 'block';
+        renderReviews('artist');
+      });
+
+      consumerToggle.addEventListener('click', () => {
+        consumerToggle.classList.add('bg-white', 'shadow');
+        consumerToggle.classList.remove('text-gray-600');
+        consumerToggle.classList.add('text-gray-800');
+
+        artistToggle.classList.remove('bg-white', 'shadow');
+        artistToggle.classList.add('text-gray-600');
+        artistToggle.classList.remove('text-gray-800');
+
+        customerReviewSection.style.display = 'block';
+        artistReviewSection.style.display = 'none';
+        renderReviews('customer');
+      });
+
+      createPostBtn.addEventListener('click', () => {
+        reviewModal.classList.add('active');
+      });
+
+      closeModalBtn.addEventListener('click', () => {
+        reviewModal.classList.remove('active');
+      });
+
+      reviewModal.addEventListener('click', (e) => {
+        if (e.target === reviewModal) {
+          reviewModal.classList.remove('active');
+        }
+      });
+
+      closeModalImageBtn.addEventListener('click', () => {
+        imageModal.classList.remove('active');
+      });
+
+      imageModal.addEventListener('click', (e) => {
+        if (e.target === imageModal) {
+          imageModal.classList.remove('active');
+        }
+      });
+
+      // Star rating functionality
+      document.querySelectorAll('.rating').forEach(ratingComponent => {
+        const stars = ratingComponent.querySelectorAll('.fa-star');
+        const ratingInput = ratingComponent.querySelector('input[type="hidden"]');
+
+        stars.forEach(star => {
+          star.addEventListener('mouseover', () => {
+            const ratingValue = star.getAttribute('data-value');
+            stars.forEach(s => {
+              s.classList.toggle('selected', s.getAttribute('data-value') <= ratingValue);
+            });
+          });
+
+          star.addEventListener('mouseout', () => {
+            const currentRating = ratingInput.value;
+            stars.forEach(s => {
+              s.classList.toggle('selected', s.getAttribute('data-value') <= currentRating);
+            });
+          });
+
+          star.addEventListener('click', () => {
+            const ratingValue = star.getAttribute('data-value');
+            ratingInput.value = ratingValue;
+            ratingComponent.setAttribute('data-rating', ratingValue);
+          });
+        });
+      });
+
+      // Handle file input to limit to 5 files
+      document.querySelectorAll('input[type="file"]').forEach(input => {
+        input.addEventListener('change', function () {
+          if (this.files.length > 5) {
+            alert('you can only upload a maximum of 5 pictures.');
+            this.value = '';
+          }
+        });
+      });
+
+      // Function to upload images
+      async function uploadImages(fileInput) {
+        const files = fileInput.files;
+        const imageUrls = [];
+        const currentUser = await getCurrentUser();
+
+        if (!currentUser) {
+          alert('You must be logged in to upload images.');
+          return [];
+        }
+
+        for (const file of files) {
+          const formData = new FormData();
+          formData.append('image', file);
+
+          try {
+            // Using apiCall might be tricky with FormData due to default Content-Type header setting logic in most helpers
+            // But let's check authService apiCall implementation. If it sets Content-Type json by default, we need to override or use fetch.
+
+            // Better to use fetch directly here to ensure boundary is set correctly by browser
+            const headers = getAuthHeaders();
+            // remove Content-Type to let browser set it
+            delete headers['Content-Type'];
+
+            const response = await fetch('/api/reviews/upload-image', {
+              method: 'POST',
+              headers: headers,
+              body: formData,
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              imageUrls.push(result.imageUrl);
+            } else {
+              const error = await response.json();
+              alert(`Error uploading image: ${error.message}`);
+            }
+          } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('An error occurred while uploading an image.');
+          }
+        }
+
+        return imageUrls;
+      }
+
+      // Handle artist review form submission
+      document.getElementById('artist-review-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const imageInput = document.getElementById('artist-pictures');
+        const imageUrls = await uploadImages(imageInput);
+
+        const formData = new FormData(this);
+        const reviewData = {
+          reviewee_username: formData.get('customer-username'),
+          reviewer_role: 'artist',
+          subject: formData.get('subject'),
+          rating: formData.get('rating'),
+          description: formData.get('description'),
+          image_urls: imageUrls,
+        };
+        console.log('Submitting artist review:', reviewData);
+
+        try {
+          const currentUser = await window.authService.getCurrentUser();
+          if (!currentUser) {
+            alert('You must be logged in to submit a review.');
+            return;
+          }
+
+          const response = await apiCall('/api/reviews', {
+            method: 'POST',
+            body: JSON.stringify(reviewData)
+          });
+
+          if (response.ok) {
+            alert('Review submitted successfully!');
+            this.reset();
+            resetRating(this);
+            reviewModal.classList.remove('active');
+            fetchAndDisplayReviews('artist'); // Refresh reviews
+          } else {
+            const error = await response.json();
+            alert(`Error: ${error.message}`);
+          }
+        } catch (error) {
+          console.error('Error submitting review:', error);
+          alert('An error occurred while submitting the review.');
+        }
+      });
+
+      // Handle customer review form submission
+      document.getElementById('customer-review-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const imageInput = document.getElementById('customer-pictures');
+        const imageUrls = await uploadImages(imageInput);
+
+        const formData = new FormData(this);
+        const reviewData = {
+          reviewee_username: formData.get('artist-username'),
+          reviewer_role: 'customer',
+          subject: formData.get('subject'),
+          rating: formData.get('rating'),
+          description: formData.get('description'),
+          image_urls: imageUrls,
+        };
+
+        try {
+          const currentUser = await window.authService.getCurrentUser();
+          if (!currentUser) {
+            alert('You must be logged in to submit a review.');
+            return;
+          }
+
+          const response = await apiCall('/api/reviews', {
+            method: 'POST',
+            body: JSON.stringify(reviewData),
+          });
+
+          if (response.ok) {
+            alert('Review submitted successfully!');
+            this.reset();
+            resetRating(this);
+            reviewModal.classList.remove('active');
+            fetchAndDisplayReviews('customer'); // Refresh reviews
+          } else {
+            const error = await response.json();
+            alert(`Error: ${error.message}`);
+          }
+        } catch (error) {
+          console.error('Error submitting review:', error);
+          alert('An error occurred while submitting the review.');
+        }
+      });
+
+      function resetRating(form) {
+        const ratingComponent = form.querySelector('.rating');
+        const ratingInput = ratingComponent.querySelector('input[type="hidden"]');
+        ratingInput.value = '0';
+        ratingComponent.setAttribute('data-rating', '0');
+        ratingComponent.querySelectorAll('.fa-star').forEach(s => s.classList.remove('selected'));
+      }
+
+      function renderStars(rating) {
+        const numericRating = rating ? parseInt(rating, 10) : 0;
+        let stars = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= numericRating) {
+            stars += '<i class="fas fa-star text-yellow-400"></i>';
+          } else {
+            stars += '<i class="fas fa-star text-gray-300"></i>';
+          }
+        }
+        return stars;
+      }
+
+      async function renderReviews(role) {
+        const currentUser = await window.authService.getCurrentUser();
+        const currentUsername = currentUser?.username;
+
+        reviewsContainer.innerHTML = '';
+        const filteredReviews = allReviews.filter(review => review.reviewer_role === role);
+
+        if (filteredReviews.length === 0) {
+          reviewsContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">no reviews yet. be the first to post one!</p>';
+          return;
+        }
+
+        filteredReviews.forEach(review => {
+          console.log('Review object:', review);
+          const isOwnReview = currentUsername && review.reviewer_username === currentUsername;
+          const reviewCard = `
+            <div class="bg-white p-6 rounded-xl shadow-md relative">
+              ${isOwnReview ? `<button class="delete-review-btn absolute top-2 right-2 text-gray-500 hover:text-red-500" data-review-id="${review.id}">&times;</button>` : ''}
+              <h3 class="text-xl font-bold mb-2">${review.subject}</h3>
+              <p class="text-gray-600 mb-4">by <span class="font-semibold">${review.reviewer_username}</span> for <span class="font-semibold">${review.reviewee_username}</span></p>
+              <div class="flex items-center mb-4">${renderStars(review.rating)}</div>
+              <p class="break-words">${review.description}</p>
+              <div class="mt-4 flex space-x-2">
+                ${(review.image_urls || []).map(url => `<img src="${url}" class="review-image w-24 h-24 object-cover rounded-lg cursor-pointer">`).join('')}
+              </div>
+            </div>
+          `;
+          reviewsContainer.innerHTML += reviewCard;
+        });
+
+        document.querySelectorAll('.review-image').forEach(img => {
+          img.addEventListener('click', (e) => {
+            modalImage.src = e.target.src;
+            imageModal.classList.add('active');
+          });
+        });
+
+        document.querySelectorAll('.delete-review-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const reviewId = e.target.dataset.reviewId;
+            if (confirm('Are you sure you want to delete this review?')) {
+              const currentUser = await window.authService.getCurrentUser();
+
+              if (!currentUser) {
+                alert('You must be logged in to delete a review.');
+                return;
+              }
+
+              const response = await apiCall(`/api/reviews/${reviewId}`, {
+                method: 'DELETE'
+              });
+
+              if (response.ok) {
+                e.target.closest('.shadow-md').remove();
+                allReviews = allReviews.filter(r => r.id !== parseInt(reviewId));
+              } else {
+                const error = await response.json();
+                alert(`Failed to delete the review: ${error.message}`);
+              }
+            }
+          });
+        });
+      }
+
+      async function fetchAndDisplayReviews(role) {
+        try {
+          // We can use public fetch for GET /api/reviews
+          const response = await fetch('/api/reviews');
+          if (response.ok) {
+            allReviews = await response.json();
+            renderReviews(role);
+          } else {
+            console.error('Failed to fetch reviews');
+          }
+        } catch (error) {
+          console.error('Error fetching reviews:', error);
+        }
+      }
+
+      // Initial fetch of reviews
+      fetchAndDisplayReviews('customer');
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>crèa settings</title>
+
+  <!-- Tailwind (kept because the page uses utility classes like flex/gap/justify-end) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+
+  <!-- GSAP (kept for decorations & section reveal) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <meta name="theme-color" content="#a63a00" />
+
+  <style>
+    /* force all visible text to appear lowercase */
+    * {
+      text-transform: lowercase !important;
+    }
+
+    /* ===== Brand + Base (aligned with Home) ===== */
+    :root {
+      --bg: #fff4ee;
+      --paper: #ffffff;
+      --ink: #332619;
+      --brand: #a63a00;
+      --brand-weak: #ffd9c5;
+      --paper-weak: #fff7f2;
+      --muted: #6b7a75;
+      --ok: #1f8b4c;
+      --warn: #b8860b;
+      --bad: #b91c1c;
+      --glass: rgba(255, 255, 255, 0.6);
+      --ani-fast: 220ms;
+      --ani-mid: 420ms;
+      --ani-slow: 900ms;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      overscroll-behavior-y: contain;
+      background-color: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      position: relative;
+      overflow-x: hidden;
+      transition: background .35s ease;
+      background-image:
+        radial-gradient(1200px 600px at 10% 10%, rgba(255, 220, 200, 0.35), transparent 12%),
+        radial-gradient(900px 500px at 95% 85%, rgba(255, 230, 210, 0.28), transparent 10%),
+        linear-gradient(120deg, #fffaf6 0%, #fff0e6 38%, #fff4ee 70%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 10px);
+      mix-blend-mode: overlay;
+      opacity: .9;
+    }
+
+    h2.section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4a2c1a;
+    }
+
+    .btn {
+      border: none;
+      padding: 10px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color .2s ease, filter .2s ease, transform .12s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(.997);
+    }
+
+    .btn-primary-custom {
+      background-color: var(--brand);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(166, 58, 0, 0.14);
+    }
+
+    .btn-primary-custom:hover {
+      filter: brightness(0.98);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--brand);
+      border: 1px solid var(--brand);
+    }
+
+    .btn-danger {
+      background: var(--bad);
+      color: #fff;
+    }
+
+    /* Settings layout & controls (kept) */
+    .settings-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .settings-section {
+      background: var(--paper);
+      border: 1px solid #f1e6df;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      padding: 24px;
+      margin-bottom: 24px;
+      transform-origin: top center;
+      transition: transform var(--ani-mid) cubic-bezier(.2, .9, .2, 1), opacity var(--ani-mid);
+      opacity: 0;
+      transform: translateY(18px) scale(.995);
+    }
+
+    .settings-section.revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .settings-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .settings-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .settings-item {
+      background: var(--paper-weak);
+      padding: 16px;
+      border-radius: 14px;
+      transition: box-shadow .18s ease, transform .18s ease;
+    }
+
+    .settings-item:hover {
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.04);
+      transform: translateY(-2px);
+    }
+
+    .settings-item label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .settings-item small.help {
+      color: var(--muted);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .settings-item input,
+    .settings-item select,
+    .settings-item textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e6d8cf;
+      border-radius: 10px;
+      font-family: inherit;
+      resize: vertical;
+      background: #fff;
+      transition: box-shadow .12s ease, border-color .12s ease;
+    }
+
+    .settings-item input:focus,
+    .settings-item textarea:focus,
+    .settings-item select:focus {
+      box-shadow: 0 8px 28px rgba(166, 58, 0, 0.09);
+      border-color: var(--brand);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    /* Toggle & password strength (kept) */
+    .toggle {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .toggle input {
+      display: none;
+    }
+
+    .toggle span {
+      position: absolute;
+      inset: 0;
+      background: #ddd;
+      border-radius: 999px;
+      transition: .2s;
+    }
+
+    .toggle span::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: .2s;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+    }
+
+    .toggle input:checked+span {
+      background: var(--brand);
+    }
+
+    .toggle input:checked+span::after {
+      transform: translateX(20px);
+    }
+
+    .strength {
+      height: 8px;
+      background: #eee;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .strength .bar {
+      height: 100%;
+      width: 0%;
+      background: var(--bad);
+      transition: width .25s ease, background .25s ease;
+      border-radius: 999px;
+    }
+
+    /* Toast + paint-splashes */
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      padding: 12px 14px;
+      background: linear-gradient(90deg, #3b4250, #111827);
+      color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: .25s;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .paint-splash {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.95;
+      transform: scale(.1);
+    }
+
+    /* Decorative blobs & strokes (kept) */
+    .decorations {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .blob {
+      position: absolute;
+      filter: blur(.4px) saturate(110%);
+      opacity: .95;
+      transform-origin: center;
+    }
+
+    .float-slow {
+      animation: floaty 8s ease-in-out infinite;
+    }
+
+    .float-med {
+      animation: floaty 6s ease-in-out infinite;
+    }
+
+    .float-fast {
+      animation: floaty 4.5s ease-in-out infinite;
+    }
+
+    @keyframes floaty {
+      0% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+      }
+
+      50% {
+        transform: translateY(-18px) rotate(6deg) translateX(8px);
+      }
+
+      100% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+      }
+    }
+
+    .stroke {
+      position: absolute;
+      opacity: .95;
+      transform-origin: left center;
+      animation: sway .9s ease-in-out infinite alternate;
+    }
+
+    @keyframes sway {
+      0% {
+        transform: translateY(0px) rotate(-2deg);
+      }
+
+      100% {
+        transform: translateY(-6px) rotate(2deg);
+      }
+    }
+
+    .mini-art {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      z-index: 3;
+      pointer-events: auto;
+    }
+
+    .mini-art .mini {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #fff, #ffece0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(166, 58, 0, 0.06);
+    }
+
+    .float-icon {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.95;
+    }
+
+    .float-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .float-icon--palette {
+      left: 8%;
+      top: 40%;
+      transform: translateY(0);
+    }
+
+    .float-icon--brush {
+      right: 10%;
+      top: 26%;
+      transform: translateY(0);
+    }
+
+    .float-icon--pencil {
+      left: 16%;
+      bottom: 18%;
+      transform: translateY(0);
+    }
+
+    .float-icon--star {
+      right: 20%;
+      bottom: 26%;
+      transform: translateY(0);
+    }
+
+    .float-icon--heart {
+      left: 48%;
+      top: 6%;
+      transform: translateY(0);
+    }
+
+    .doodle {
+      width: 36px;
+      height: 22px;
+      display: inline-block;
+      margin-left: 8px;
+      opacity: .92;
+      transform: translateY(0);
+    }
+
+
+
+    /* Responsive adjustments (removed profile-pic specific rule) */
+    @media (max-width: 768px) {
+      .settings-wrap {
+        padding: 18px;
+      }
+
+      .mini-art {
+        display: none;
+      }
+
+      .float-icon {
+        display: none;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Back Button Styling */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(166, 58, 0, 0.14);
+      transition: background-color 0.2s ease, transform 0.12s ease;
+      z-index: 10000;
+    }
+
+    .back-btn:hover {
+      filter: brightness(0.98);
+      transform: translateY(-2px);
+    }
+
+    .back-btn .icon {
+      width: 24px;
+      height: 24px;
+      stroke: #fff;
+    }
+
+    /* Password Reset Popup */
+    .password-reset-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .password-reset-popup.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .password-reset-content {
+      background: var(--paper);
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .password-reset-popup.active .password-reset-content {
+      transform: translateY(0);
+    }
+
+    .password-reset-content h3 {
+      margin-bottom: 16px;
+      color: var(--brand);
+      font-size: 1.25rem;
+    }
+
+    .password-reset-content p {
+      margin-bottom: 24px;
+      color: var(--ink);
+    }
+
+    .password-reset-close {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s ease;
+    }
+
+    .password-reset-close:hover {
+      filter: brightness(0.98);
+    }
+
+    /* Change Password Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--brand);
+    }
+
+    .close-btn {
+      font-size: 28px;
+      font-weight: bold;
+      color: #aaa;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: var(--brand);
+    }
+
+    .modal-form input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border: 1px solid #e6d8cf;
+      border-radius: 10px;
+      font-family: inherit;
+      background: #fff;
+      transition: box-shadow 0.12s ease, border-color 0.12s ease;
+    }
+
+    .modal-form input:focus {
+      box-shadow: 0 8px 28px rgba(166, 58, 0, 0.09);
+      border-color: var(--brand);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .cancel-btn {
+      background: transparent;
+      border: 1px solid #ccc;
+      color: #666;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .cancel-btn:hover {
+      background: #f5f5f5;
+      border-color: #999;
+    }
+
+    .change-btn {
+      background: linear-gradient(90deg, var(--brand), #d44700);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .change-btn:hover {
+      box-shadow: 0 4px 12px rgba(166, 58, 0, 0.3);
+    }
+
+    .msg {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .msg.error {
+      background: #fee;
+      color: #c53030;
+      border-left: 4px solid #c53030;
+    }
+
+    .msg.success {
+      background: #f0fff4;
+      color: #22543d;
+      border-left: 4px solid #22543d;
+    }
+
+    /* Delete account modal styles */
+    .delete-btn:hover {
+      background-color: #991b1b !important;
+      box-shadow: 0 4px 12px rgba(185, 28, 28, 0.3);
+    }
+
+    .delete-warning ul li {
+      margin-bottom: 6px;
+    }
+
+    #deleteConfirmText:focus,
+    #deletePasswordConfirm:focus {
+      border-color: var(--bad) !important;
+      box-shadow: 0 8px 28px rgba(185, 28, 28, 0.09) !important;
+    }
+  </style>
+
+</head>
+
+<body class="fade-in">
+  <div class="px-6 md:px-12 py-4 relative z-10">
+    <button id="backButton"
+      class="text-white bg-[var(--brand)] px-4 py-2 rounded-full shadow hover:bg-[var(--brand-900)] transition flex items-center gap-2">
+      <i class="fas fa-arrow-left"></i><span>back</span>
+    </button>
+  </div>
+  <!-- decorative floating blobs & paint strokes (kept) -->
+  <div class="decorations" aria-hidden="true">
+    <svg class="blob float-slow" style="left:6%; top:12%; width:120px; height:120px; opacity:.9" viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="1">
+          <stop offset="0" stop-color="#ffecd9" />
+          <stop offset="1" stop-color="#ffd0b8" />
+        </linearGradient>
+      </defs>
+      <path fill="url(#g1)"
+        d="M43,-45.7C56.2,-34.1,70.9,-27.5,78.6,-14.8C86.3,-2,87,18.9,79.6,35.7C72.3,52.5,56.9,65.1,39.8,70.7C22.7,76.3,3.9,74.8,-12.2,69.3C-28.3,63.7,-41.1,54.1,-52.7,41.8C-64.2,29.6,-74.3,14.8,-75.9,-1.1C-77.5,-17,-70.7,-34.1,-58.7,-46.2C-46.6,-58.2,-29.3,-65.1,-11.6,-68.1C6.1,-71.1,12.2,-70.5,43,-45.7Z"
+        transform="translate(100 100)" />
+    </svg>
+
+    <svg class="blob float-med" style="right:6%; bottom:8%; width:160px; height:160px; opacity:.8"
+      viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="g2" x1="0" x2="1">
+          <stop offset="0" stop-color="#fff7f2" />
+          <stop offset="1" stop-color="#ffd9c5" />
+        </linearGradient>
+      </defs>
+      <path fill="url(#g2)"
+        d="M35.5,-47.3C47.3,-37.1,63.7,-31.8,71.8,-19.8C79.9,-7.8,79.7,9.6,72.8,24.5C66,39.5,52.6,52.1,36.2,60.3C19.9,68.5,-0.6,72.3,-18.2,68.5C-35.8,64.7,-50.3,53.2,-58.5,37.2C-66.8,21.2,-68.7,0.6,-64.4,-17.8C-60.1,-36.2,-49.6,-53.3,-33.4,-63.8C-17.2,-74.2,4.2,-78.1,21.7,-72.7C39.3,-67.3,56.1,-57.6,35.5,-47.3Z"
+        transform="translate(100 100)" />
+    </svg>
+
+    <svg class="stroke" style="left:18%; top:38%; width:90px; height:36px;" viewBox="0 0 120 36">
+      <path d="M5 20c30-22 80 6 110-6" fill="none" stroke="#ffc39a" stroke-width="10" stroke-linecap="round"
+        opacity=".95" />
+    </svg>
+    <svg class="stroke" style="right:20%; top:18%; width:120px; height:48px;" viewBox="0 0 160 48">
+      <path d="M5 24c40-26 100 9 150-9" fill="none" stroke-#ffd0b8" stroke-width="12" stroke-linecap="round"
+        opacity=".92" />
+    </svg>
+
+    <svg style="left:8%; bottom:28%; width:48px; height:48px;" class="mini-art" viewBox="0 0 24 24">
+      <g transform="translate(0,0)">
+        <rect x="0" y="0" width="40" height="40" fill="transparent" />
+      </g>
+    </svg>
+  </div>
+
+  <!-- NEW: floating icons (kept) -->
+  <div class="float-icon float-icon--palette" aria-hidden="true" title="palette">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12c0 3.53 2.61 6.45 6 7.3V21c0 .55.45 1 1 1 .28 0 .54-.11.74-.29C11.18 20.32 13.08 20 14.95 18.86 18.19 16.8 20 13.61 20 10.5 20 6.91 16.09 4 12 4z"
+        fill="#ffd0b8" />
+      <circle cx="9" cy="9" r="1.6" fill="#ff9f68" />
+      <circle cx="15" cy="8" r="1.3" fill="#ffb08a" />
+      <circle cx="13" cy="14" r="1" fill="#ffecd9" />
+    </svg>
+  </div>
+
+  <div class="float-icon float-icon--brush" aria-hidden="true" title="brush">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 16c0 2.76 2.24 5 5 5h.5c.83 0 1.5-.67 1.5-1.5V18h-7z" fill="#ffb08a" />
+      <path d="M13.5 2l4 4-6 6-4-4 6-6z" fill="#ff9f68" />
+    </svg>
+  </div>
+
+  <div class="float-icon float-icon--pencil" aria-hidden="true" title="pencil">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="#ffd9c5" />
+      <path d="M20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.28a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"
+        fill="#ff9f68" />
+    </svg>
+  </div>
+
+  <div class="float-icon float-icon--star" aria-hidden="true" title="star">
+    <svg viewBox="0 0 24 24" fill="#ffd0b8" xmlns="http://www.gstatic.com/firebasejs/10.12.2/firebase-app.js">
+      <path d="M12 .587l3.668 7.431L23 9.75l-5.5 5.373L18.335 24 12 19.854 5.665 24 7.5 15.123 2 9.75l7.332-1.732z" />
+    </svg>
+  </div>
+
+  <div class="float-icon float-icon--heart" aria-hidden="true" title="heart">
+    <svg viewBox="0 0 24 24" fill="#ffb08a" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M12 21s-6.716-4.35-9.03-6.45C-1.3 11.83 3.1 6 7.5 8.2 9.6 9.4 12 12 12 12s2.4-2.6 4.5-3.8C20.9 6 26.3 11.83 21.03 14.55 18.72 16.65 12 21 12 21z" />
+    </svg>
+  </div>
+
+  <div class="mini-art" aria-hidden="true">
+    <div class="mini" title="Crèa — creative">
+      <svg width="22" height="22" viewBox="0 0 24 24">
+        <path fill="#a63a00"
+          d="M12 2C8.1 2 5 5.1 5 9c0 4.6 5.1 8.2 6.1 8.9.4.3 1 .3 1.4 0C13.9 17.2 19 13.6 19 9c0-3.9-3.1-7-7-7zM7.3 9.3c-.7-.7-.7-2 0-2.8 .7-.7 1.9-.7 2.6 0 .7.7.7 2 0 2.8-.7.7-1.9.7-2.6 0z" />
+      </svg>
+    </div>
+    <div class="mini" title="palette">
+      <svg width="22" height="22" viewBox="0 0 24 24">
+        <path fill="#ffb08a"
+          d="M12 2C7 2 3 6 3 11s4 9 9 9c.7 0 1.4-.1 2-.3 1.7-.5 3.4-1.6 4.2-3 1-1.8.6-4.1-1-5.1-.9-.5-1.1-1.1-1-1.9.1-1.2 1.4-2.1 2.6-1.9 1.3.2 2.4 1.3 2.4 2.6 0 4.4-4 8-9 8-5 0-9-4-9-9s4-9 9-9z" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Password Reset Popup -->
+  <div class="password-reset-popup" id="passwordResetPopup">
+    <div class="password-reset-content">
+      <h3>password reset</h3>
+      <p>a password reset link has been sent to your email address.</p>
+      <button class="password-reset-close" id="closePasswordReset">ok</button>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Change Password</h2>
+        <span id="closeChangeModal" class="close-btn">&times;</span>
+      </div>
+      <form id="changePasswordForm" class="modal-form">
+        <div id="changeMsg" class="msg" style="display:none"></div>
+        <input id="currentPassword" type="password" placeholder="Current password" required />
+        <input id="newPasswordSettings" type="password" placeholder="New password" required minlength="6" />
+        <input id="confirmPasswordSettings" type="password" placeholder="Confirm new password" required minlength="6" />
+        <div class="modal-buttons">
+          <button type="button" id="cancelChange" class="cancel-btn">Cancel</button>
+          <button type="submit" class="change-btn">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Account Modal -->
+  <div id="deleteAccountModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2 style="color: var(--bad);">⚠️ Delete Account</h2>
+        <span id="closeDeleteModal" class="close-btn">&times;</span>
+      </div>
+      <div class="delete-warning">
+        <p style="color: var(--ink); margin-bottom: 16px; line-height: 1.5;">
+          This action cannot be undone. This will permanently delete your account and remove all associated data
+          including:
+        </p>
+        <ul style="color: var(--muted); margin: 16px 0 20px 20px; line-height: 1.6;">
+          <li>All your creations and artwork</li>
+          <li>Custom categories and collections</li>
+          <li>Account settings and preferences</li>
+          <li>Usage history and statistics</li>
+        </ul>
+        <form id="deleteAccountForm" class="modal-form">
+          <div id="deleteMsg" class="msg" style="display:none"></div>
+          <div style="margin-bottom: 16px;">
+            <label style="font-weight: 600; color: var(--bad); display: block; margin-bottom: 8px;">
+              Type "DELETE" to confirm (case-sensitive):
+            </label>
+            <input id="deleteConfirmText" type="text" placeholder="DELETE" required style="border-color: var(--bad);" />
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600; color: var(--bad); display: block; margin-bottom: 8px;">
+              Enter your current password:
+            </label>
+            <input id="deletePasswordConfirm" type="password" placeholder="Current password" required
+              style="border-color: var(--bad);" />
+          </div>
+          <div class="modal-buttons">
+            <button type="button" id="cancelDelete" class="cancel-btn">Cancel</button>
+            <button type="submit" class="delete-btn"
+              style="background: var(--bad); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background-color 0.3s ease;">
+              Delete My Account
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main canvas -->
+  <main class="pt-10 pb-16">
+    <div class="settings-wrap">
+      <h2 class="section-title mb-6">settings</h2>
+
+      <!-- 🔒 Account -->
+      <div class="settings-section" id="section-account">
+        <div class="settings-title">🔒 account
+          <svg class="doodle" viewBox="0 0 36 22" aria-hidden="true">
+            <path d="M2 10c8-5 20-5 32 0" stroke="#fff0e6" stroke-width="3" stroke-linecap="round" fill="none"
+              opacity=".9" />
+          </svg>
+        </div>
+        <div class="settings-content">
+          <div class="settings-item">
+            <label for="accountName">name</label>
+            <div id="accountName"
+              style="padding:10px 12px;border:1px solid #e6d8cf;border-radius:10px;background:#f9f7f3;">
+              —
+            </div>
+            <small class="help">this is the name associated with your account.</small>
+          </div>
+          <div class="settings-item">
+            <label for="accountEmail">email</label>
+            <div id="accountEmail"
+              style="padding:10px 12px;border:1px solid #e6d8cf;border-radius:10px;background:#f9f7f3;">
+              —
+            </div>
+            <small class="help">we'll use this to send receipts and important updates.</small>
+          </div>
+          <div class="settings-item">
+            <label>change password</label>
+            <button id="changePasswordBtn" class="btn btn-primary-custom" style="margin-top:8px;">change
+              password</button>
+            <small class="help">update your account password securely.</small>
+          </div>
+
+
+        </div>
+      </div>
+
+
+
+      <!-- Danger Zone -->
+      <div class="settings-section" id="section-danger">
+        <div class="settings-title">🧨 danger Zone</div>
+        <div class="settings-content">
+          <div class="settings-item" style="border:1px dashed var(--bad); background:#fff1f1;">
+            <label>delete account</label>
+            <small class="help">this is permanent. all your creations, categories and settings will be removed.</small>
+            <button id="deleteBtn" class="btn btn-danger" style="margin-top:8px;">delete my account</button>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">saved!</div>
+
+  <script type="module">
+    import authService from './js/auth.js';
+
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = await authService.getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      document.getElementById('accountEmail').textContent = currentUser.email;
+      document.getElementById('accountName').textContent = currentUser.name || currentUser.username || 'User';
+
+      document.querySelectorAll('.settings-section').forEach((el, index) => {
+        setTimeout(() => {
+          el.classList.add('revealed');
+        }, index * 100);
+      });
+
+      document.getElementById('backButton').addEventListener('click', () => {
+        window.location.href = 'home.html';
+      });
+
+      // Change password modal handlers
+      document.getElementById('changePasswordBtn').addEventListener('click', () => {
+        showModal('changePasswordModal');
+      });
+
+      document.getElementById('closeChangeModal').addEventListener('click', () => {
+        hideModal('changePasswordModal');
+      });
+
+      document.getElementById('cancelChange').addEventListener('click', () => {
+        hideModal('changePasswordModal');
+      });
+
+      // Click outside modal to close
+      document.getElementById('changePasswordModal').addEventListener('click', e => {
+        if (e.target === e.currentTarget) {
+          hideModal('changePasswordModal');
+        }
+      });
+
+      // Change password form submission
+      document.getElementById('changePasswordForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        hideMsg('changeMsg');
+
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPasswordSettings').value;
+        const confirmPassword = document.getElementById('confirmPasswordSettings').value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          showMsg('changeMsg', 'Please fill in all password fields.');
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          showMsg('changeMsg', 'New password must be at least 6 characters.');
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          showMsg('changeMsg', 'New passwords do not match.');
+          return;
+        }
+
+        try {
+          const response = await authService.apiCall('/api/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ currentPassword, newPassword })
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to change password');
+          }
+
+          showMsg('changeMsg', 'Password changed successfully!', 'success');
+
+          // Clear form and close modal after success
+          setTimeout(() => {
+            document.getElementById('changePasswordForm').reset();
+            hideMsg('changeMsg');
+            hideModal('changePasswordModal');
+            showToast('Password changed successfully!');
+          }, 2000);
+
+        } catch (err) {
+          showMsg('changeMsg', err.message || 'Error changing password.');
+        }
+      });
+
+      // Delete account modal handlers
+      document.getElementById('deleteBtn').addEventListener('click', () => {
+        showModal('deleteAccountModal');
+      });
+
+      document.getElementById('closeDeleteModal').addEventListener('click', () => {
+        hideModal('deleteAccountModal');
+      });
+
+      document.getElementById('cancelDelete').addEventListener('click', () => {
+        hideModal('deleteAccountModal');
+      });
+
+      // Click outside modal to close
+      document.getElementById('deleteAccountModal').addEventListener('click', e => {
+        if (e.target === e.currentTarget) {
+          hideModal('deleteAccountModal');
+        }
+      });
+
+      // Delete account form submission
+      document.getElementById('deleteAccountForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        hideMsg('deleteMsg');
+
+        const confirmText = document.getElementById('deleteConfirmText').value;
+        const password = document.getElementById('deletePasswordConfirm').value;
+
+        if (!confirmText || !password) {
+          showMsg('deleteMsg', 'Please fill in all required fields.');
+          return;
+        }
+
+        if (confirmText !== 'DELETE') {
+          showMsg('deleteMsg', 'You must type "DELETE" exactly to confirm.');
+          return;
+        }
+
+        try {
+          // Show final confirmation
+          const finalConfirm = confirm(
+            `Are you absolutely sure you want to delete your account?\n\nEmail: ${currentUser.email}\n\nThis action is IRREVERSIBLE and will permanently delete all your data.`
+          );
+
+          if (!finalConfirm) {
+            return;
+          }
+
+          // Call backend endpoint to delete account
+          const response = await authService.apiCall('/api/user/account', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password: password })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to delete account');
+          }
+
+          // Account successfully deleted - sign out locally
+          await authService.signOut();
+
+          showMsg('deleteMsg', 'Account completely deleted. Redirecting...', 'success');
+
+          // Redirect after a brief delay
+          setTimeout(() => {
+            window.location.href = 'auth.html?message=account-deleted';
+          }, 2000);
+
+        } catch (err) {
+          console.error('Delete account error:', err);
+          showMsg('deleteMsg', err.message || 'Error deleting account. Please try again.');
+        }
+      });
+    });
+
+    // Modal functions
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function hideModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    function showMsg(id, text, type = 'error') {
+      const el = document.getElementById(id);
+      el.style.display = 'block';
+      el.className = `msg ${type}`;
+      el.textContent = text;
+    }
+
+    function hideMsg(id) {
+      const el = document.getElementById(id);
+      el.style.display = 'none';
+      el.textContent = '';
+    }
+
+
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+
+  <script>
+    // GSAP animations for floating icons
+    gsap.utils.toArray('.float-icon').forEach((icon, i) => {
+      gsap.fromTo(icon,
+        { y: -5 - (i * 5) },
+        {
+          y: 5 + (i * 5),
+          ease: "sine.inOut",
+          duration: 2.5 + i * 0.5,
+          repeat: -1,
+          yoyo: true
+        }
+      );
+    });
+
+    // Paint splash effect on click
+    const colors = ["#ffc39a", "#ffd0b8", "#ff9f68", "#ffecd9"];
+    document.addEventListener('click', e => {
+      for (let i = 0; i < 4; i++) {
+        let splash = document.createElement('div');
+        splash.className = 'paint-splash';
+        splash.style.left = e.pageX + 'px';
+        splash.style.top = e.pageY + 'px';
+        splash.style.background = colors[gsap.utils.random(0, colors.length - 1, 1)];
+        document.body.appendChild(splash);
+
+        gsap.to(splash, {
+          x: gsap.utils.random(-100, 100),
+          y: gsap.utils.random(-100, 100),
+          scale: gsap.utils.random(0.5, 1.5),
+          opacity: 0,
+          duration: gsap.utils.random(0.5, 1),
+          ease: "power2.out",
+          onComplete: () => splash.remove()
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

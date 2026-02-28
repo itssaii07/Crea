@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>crèa about</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+
+  <!-- Theme color for mobile browsers -->
+  <meta name="theme-color" content="#a63a00" />
+
+  <style>
+    /* Force all visible text to appear lowercase */
+    * {
+      text-transform: lowercase !important;
+    }
+
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #cfcece;
+      color: #333;
+    }
+
+    /* Navbar styles */
+    header { z-index: 9999; }
+    #navbar { top: 60px; opacity: 1; transition: transform 0.5s ease, opacity 0.5s ease; }
+    #navbar.hide { transform: translate(-50%, -140%); opacity: 0; }
+    #navbar.show { transform: translate(-50%, 0); opacity: 1; }
+
+    h2.section-title { font-size: 2.7rem; font-weight: 700; color: #4a2c1a; }
+
+    .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+    .btn-primary-custom { background-color: #a63a00; color: #fff; border: none; transition: background-color 0.3s ease; }
+    .btn-primary-custom:hover { background-color: #8b3000; }
+
+    .fade-in { animation: fadeIn 1s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Decorative Circles */
+    .decorative-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a63a00, #ffcc00);
+      opacity: 0.1;
+    }
+
+    .circle-1 { width: 200px; height: 200px; top: 10%; left: 10%; }
+    .circle-2 { width: 150px; height: 150px; top: 60%; right: 10%; }
+    .circle-3 { width: 100px; height: 100px; bottom: 20%; left: 20%; }
+
+    /* Extra padding so hero sits below navbar */
+    .hero-section {
+      padding-top: 2rem;
+    }
+  </style>
+  
+</head>
+<body>
+
+  <div id="navbar-mount"></div>
+  <div style="height: 120px;"></div>
+
+  <div class="max-w-screen-15xl mx-auto px-6 relative overflow-hidden">
+
+    <!-- Decorative Circles -->
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+    <div class="decorative-circle circle-3"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section pb-20 text-center relative z-10">
+      <h1 class="text-5xl md:text-7xl font-bold text-[#a63a00] mb-6 fade-in">
+        about crèa
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed fade-in" style="animation-delay: 0.2s;">
+        born from a passion for creativity, we connect dreamers with artists who bring ideas to life, celebrating individuality and making custom art accessible to all.
+      </p>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="py-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div class="fade-in">
+          <h2 class="section-title mb-6">our mission</h2>
+          <p class="text-lg text-gray-600 leading-relaxed mb-6">
+            at crèa, we believe that everyone has a story to tell through art. our platform bridges the gap between creative minds and those who seek unique, personalized creations. whether you're an artist looking to share your craft or someone searching for that perfect custom piece, crèa is your creative companion.
+          </p>
+          <p class="text-lg text-gray-600 leading-relaxed">
+            we foster a community where imagination knows no bounds, where every request becomes a masterpiece, and where art becomes a bridge between hearts and hands.
+          </p>
+        </div>
+        <div class="fade-in" style="animation-delay: 0.3s;">
+          <img src="assets/1.png" alt="Creative workspace" class="rounded-3xl shadow-2xl w-full h-96 object-cover hover-lift" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="py-16 bg-white/50 backdrop-blur-sm rounded-3xl p-8">
+      <h2 class="section-title text-center mb-12">our values</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center fade-in hover-lift p-6 rounded-2xl bg-white/70">
+          <div class="text-4xl text-[#a63a00] mb-4"><i class="fas fa-palette"></i></div>
+          <h3 class="text-2xl font-semibold mb-4">creativity</h3>
+          <p class="text-gray-600">we celebrate diverse artistic expressions and encourage bold, innovative creations that push boundaries.</p>
+        </div>
+        <div class="text-center fade-in hover-lift p-6 rounded-2xl bg-white/70" style="animation-delay: 0.2s;">
+          <div class="text-4xl text-[#a63a00] mb-4"><i class="fas fa-users"></i></div>
+          <h3 class="text-2xl font-semibold mb-4">community</h3>
+          <p class="text-gray-600">building connections between artists and art lovers, fostering a supportive and inspiring creative ecosystem.</p>
+        </div>
+        <div class="text-center fade-in hover-lift p-6 rounded-2xl bg-white/70" style="animation-delay: 0.4s;">
+          <div class="text-4xl text-[#a63a00] mb-4"><i class="fas fa-heart"></i></div>
+          <h3 class="text-2xl font-semibold mb-4">passion</h3>
+          <p class="text-gray-600">driven by genuine love for art and creativity, we ensure every piece is made with care and dedication.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-16">
+      <h2 class="section-title text-center mb-12">how it works</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center fade-in">
+          <div class="w-16 h-16 bg-[#a63a00] rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">1</div>
+          <h3 class="text-xl font-semibold mb-4">make a request</h3>
+          <p class="text-gray-600">describe your vision, share your ideas, and let our artists know what you're looking for.</p>
+        </div>
+        <div class="text-center fade-in" style="animation-delay: 0.2s;">
+          <div class="w-16 h-16 bg-[#a63a00] rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">2</div>
+          <h3 class="text-xl font-semibold mb-4">connect & collaborate</h3>
+          <p class="text-gray-600">artists review your request and start a conversation to bring your ideas to life.</p>
+        </div>
+        <div class="text-center fade-in" style="animation-delay: 0.4s;">
+          <div class="w-16 h-16 bg-[#a63a00] rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">3</div>
+          <h3 class="text-xl font-semibold mb-4">receive your creation</h3>
+          <p class="text-gray-600">get your custom artwork delivered, crafted with passion and attention to detail.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-[#a63a00] text-white rounded-3xl p-8 text-center">
+      <h2 class="text-3xl font-bold mb-8">crèa by numbers</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="fade-in">
+          <div class="text-4xl font-bold mb-2">500+</div>
+          <div class="text-lg">happy customers</div>
+        </div>
+        <div class="fade-in" style="animation-delay: 0.2s;">
+          <div class="text-4xl font-bold mb-2">200+</div>
+          <div class="text-lg">talented artists</div>
+        </div>
+        <div class="fade-in" style="animation-delay: 0.4s;">
+          <div class="text-4xl font-bold mb-2">1000+</div>
+          <div class="text-lg">creations delivered</div>
+        </div>
+        <div class="fade-in" style="animation-delay: 0.6s;">
+          <div class="text-4xl font-bold mb-2">50+</div>
+          <div class="text-lg">art categories</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Note from the Makers Section -->
+    <section class="py-16 bg-white/50 rounded-3xl p-8">
+      <h2 class="section-title text-center mb-12">note from the makers</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+        
+        <!-- Maker 1 -->
+        <div class="flex flex-col md:flex-row items-center gap-6 p-6 bg-white rounded-2xl shadow hover-lift">
+          <div class="w-20 h-20 rounded-full bg-[#a63a00] flex items-center justify-center text-white text-2xl font-bold">
+            A
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-[#a63a00]">Name 1</h3>
+            <p class="text-gray-600 mt-2">
+              your custom message goes here. add a personal note or insight from this team member.
+            </p>
+          </div>
+        </div>
+
+        <!-- Maker 2 -->
+        <div class="flex flex-col md:flex-row items-center gap-6 p-6 bg-white rounded-2xl shadow hover-lift">
+          <div class="w-20 h-20 rounded-full bg-[#a63a00] flex items-center justify-center text-white text-2xl font-bold">
+            B
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-[#a63a00]">Name 2</h3>
+            <p class="text-gray-600 mt-2">
+              your custom message goes here. add a personal note or insight from this team member.
+            </p>
+          </div>
+        </div>
+
+        <!-- Maker 3 -->
+        <div class="flex flex-col md:flex-row items-center gap-6 p-6 bg-white rounded-2xl shadow hover-lift">
+          <div class="w-20 h-20 rounded-full bg-[#a63a00] flex items-center justify-center text-white text-2xl font-bold">
+            C
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-[#a63a00]">Name 3</h3>
+            <p class="text-gray-600 mt-2">
+              your custom message goes here. add a personal note or insight from this team member.
+            </p>
+          </div>
+        </div>
+
+        <!-- Maker 4 -->
+        <div class="flex flex-col md:flex-row items-center gap-6 p-6 bg-white rounded-2xl shadow hover-lift">
+          <div class="w-20 h-20 rounded-full bg-[#a63a00] flex items-center justify-center text-white text-2xl font-bold">
+            D
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-[#a63a00]">Name 4</h3>
+            <p class="text-gray-600 mt-2">
+              your custom message goes here. add a personal note or insight from this team member.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#a63a00] text-white text-center py-12 px-4 rounded-t-[30px]">
+    <h3 class="text-2xl font-semibold mb-4">about crèa</h3>
+    <p class="max-w-3xl mx-auto mb-4 text-lg leading-relaxed">
+      crèa is a space for creativity, sharing, and exploration. whether you're browsing for inspiration or building your dream project, we're here to empower your ideas and connect you with a community that values innovation and expression.
+    </p>
+    <div class="text-sm">
+      <p>&copy; 2025 crèa. all rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

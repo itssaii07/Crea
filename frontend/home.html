@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>crèa home</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  
+  <meta name="theme-color" content="#a63a00" />
+  
+  <!-- Animation libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+  <style>
+    /* force all visible text to appear lowercase */
+* {
+  text-transform: lowercase !important;
+}
+
+    /* Base layout */
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      overscroll-behavior-y: contain;
+      background-color: #cfcece;
+      color: #333;
+      overflow-x: hidden; /* Prevent horizontal scroll during animations */
+    }
+    
+    /* Global animation classes */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .scale-in {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    
+    .scale-in.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .slide-in-left {
+      opacity: 0;
+      transform: translateX(-30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    
+    .slide-in-right {
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    
+    .slide-in-left.visible, .slide-in-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    /* Floating animation */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .float {
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    /* Pulse animation */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse {
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    /* Shimmer effect */
+    @keyframes shimmer {
+      0% { background-position: -100% 0; }
+      100% { background-position: 100% 0; }
+    }
+    
+    .shimmer {
+      background: linear-gradient(90deg, 
+        rgba(255,255,255,0) 0%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+
+    /* Notification Badge */
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ff4d4d;
+      color: white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    /* Marquee Animation */
+    @keyframes marquee {
+      0%   { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .animate-marquee { animation: marquee 18s linear infinite; }
+
+    /* Section Titles */
+    h2.section-title { font-size: 2.7rem; font-weight: 700; color: #4a2c1a; }
+
+    /* Card Hover */
+    .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+    /* Primary Button helper */
+    .btn-primary-custom { background-color: #a63a00; color: #fff; border: none; transition: background-color 0.3s ease; }
+    .btn-primary-custom:hover { background-color: #8b3000; }
+
+    /* Hero carousel container — aligned to container */
+    .hero-carousel {
+      position: relative;
+      width: 100%;           /* fills shared container width */
+      height: 57rem;
+      margin: 2rem 0 3rem;
+      overflow: hidden;
+      border-radius: 30px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      z-index: 0;
+    }
+
+    /* Track */
+    .hero-carousel .carousel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      height: 100%;
+      will-change: transform;
+      transition: transform 0.7s ease-in-out;
+    }
+
+    /* Slides */
+    .hero-carousel .carousel img {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 30px;
+    }
+
+    /* Keep header above carousel */
+    header { z-index: 9999; }
+
+    /*Navbar show/hide positions */
+    #navbar { top: 60px; opacity: 1; transition: transform 0.5s ease, opacity 0.5s ease; }
+    #navbar.hide { transform: translate(-50%, -140%); opacity: 0; }
+    #navbar.show { transform: translate(-50%, 0); opacity: 1; }
+
+    /* Responsive hero height */
+    @media (max-width: 640px) { .hero-carousel { height: 60vh; } }
+
+    /* Respect Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      .animate-marquee { animation: none; }
+      .hero-carousel .carousel { transition: none; }
+    }
+
+    .section-title {
+      font-size: 2.5rem; /* ~40px */
+      font-weight: 700;
+    }
+
+    /* ------------------------------ */
+    /* Enhancements for Moving Banner */
+    /* ------------------------------ */
+
+    /* Gradient Background Animation */
+    .animated-gradient {
+      background: linear-gradient(270deg, #ff6a00, #ff4500, #ff6a00);
+      background-size: 600% 600%;
+      animation: gradientMove 15s ease infinite;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Marquee Text Gradient */
+    .text-gradient {
+    background: linear-gradient(90deg, #a63a00, #ffcc00, #a63a00);
+    background-size: 300%;
+    background-clip: text;          /* Standard property */
+    -webkit-background-clip: text;  /* For Safari/Chrome */
+    color: transparent;               /* Standard way to make text transparent */
+    -webkit-text-fill-color: transparent; /* For Safari */
+    animation: textShift 6s linear infinite;
+  }
+
+    @keyframes textShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    /* Floating Icons */
+    .floating-icon {
+      animation: float 6s ease-in-out infinite;
+      user-select: none;
+      pointer-events: none;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* Button Pulse + Hover Glow */
+    .pulse-btn { animation: pulse 2.5s infinite; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(255,255,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+    .hover\:shadow-glow:hover { box-shadow: 0 0 20px rgba(255, 165, 0, 0.7); }
+
+    /* Fade-in on Scroll (initial state) */
+    .fade-in-section { opacity: 0; transform: translateY(30px); }
+    
+    
+      /* Artist mode subtle look */
+  .artist-mode {
+    background-color: #f5f3ff; /* very light purple tint */
+    transition: background-color 0.5s ease;
+  }
+
+  /* User mode default */
+  .user-mode {
+    background-color: #cfcece;
+    transition: background-color 0.5s ease;
+  }
+  
+    /* ================================== */
+    /* NEW: Styles for Craft Collage      */
+    /* ================================== */
+    .collage-item {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .collage-item:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 25px 5px rgba(255, 165, 0, 0.6); /* Orange glow */
+    }
+
+    /* ================================== */
+    /* UPDATED: Styles for Image Modal    */
+    /* ================================== */
+    #imageModal {
+        background-color: rgba(0, 0, 0, 0.8); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 1rem; 
+        opacity: 1; 
+        pointer-events: auto;
+        transition: opacity 0.3s ease-in-out;
+    }
+    #imageModal.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #imageModal > div { /* This targets the actual modal content box */
+        background-color: #ffffff;
+        border-radius: 1.5rem; 
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        max-width: 900px; 
+        width: 100%;
+        max-height: 90vh; 
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; 
+        transition: transform 0.3s ease-in-out;
+        transform: scale(1); 
+    }
+    #imageModal.hidden > div {
+        transform: scale(0.95);
+    }
+
+    #modalImage {
+        width: 100%; 
+        height: auto;
+        max-height: 75vh; 
+        object-fit: contain; 
+        object-position: center;
+        border-radius: 1.5rem 1.5rem 0 0; 
+        padding: 0; 
+    }
+
+    #imageModal .modal-text-content { 
+        padding: 1.5rem;
+        text-align: center;
+        background-color: #fcfcfc; 
+        border-radius: 0 0 1.5rem 1.5rem; 
+    }
+
+    #modalCloseBtn {
+        top: 1rem;
+        right: 1rem;
+        color: white; 
+        text-shadow: 0 0 8px rgba(0,0,0,0.7); 
+    }
+    
+    /* NEW: Helper class for artist links to remove default styling */
+    .artist-card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+    .artist-card-link:focus {
+        outline: none;
+    }
+    .artist-card-link:focus-visible {
+        outline: 2px solid #a63a00;
+        border-radius: 12px;
+    }
+
+  </style>
+  
+</head>
+<body class="user-mode">
+
+  <div id="navbar-mount"></div>
+
+  <div class="max-w-screen-15xl mx-auto px-6">
+
+    <section class="hero-carousel" aria-label="Hero image carousel">
+      <!-- Particle overlay -->
+      <div id="particles-js" class="absolute inset-0 z-10 opacity-60 pointer-events-none"></div>
+      
+      <!-- Hero overlay removed -->
+      
+      <div class="carousel" id="carousel">
+        <img src="assets/1.png" alt="Sunlit pottery studio" />
+        <img src="assets/2.png" alt="Handcrafted car-themed art" loading="lazy" decoding="async" />
+        <img src="assets/3.png" alt="Ceramic pots display" loading="lazy" decoding="async" />
+        <img src="assets/4.png" alt="Art supplies collage" loading="lazy" decoding="async" />
+      </div>
+      
+      <!-- Decorative elements -->
+      <div class="absolute top-10 left-10 z-10 w-16 h-16 opacity-70 floating-icon" style="animation-delay: 0.5s;">
+        <img src="assets/bunny ou1.png" alt="" class="w-full h-full object-contain">
+      </div>
+      <div class="absolute bottom-20 right-10 z-10 w-20 h-20 opacity-70 floating-icon" style="animation-delay: 1.2s;">
+        <img src="assets/pot ou3.png" alt="" class="w-full h-full object-contain">
+      </div>
+    </section>
+
+    <section class="pt-8 pb-16">
+      <div class="flex justify-between items-center mb-12">
+        <h2 class="section-title">Popular Artists</h2>
+        <a href="explore.html" class="btn-primary-custom px-6 py-3 rounded-full inline-flex items-center justify-center">View More</a>
+      </div>
+      <div id="popular-artists" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        
+      </div>
+    </section>
+
+  </div>
+
+  <section class="relative w-full h-[500px] overflow-hidden animated-gradient">
+    <div class="absolute top-12 left-10 text-white text-4xl floating-icon" aria-hidden="true">⚙️</div>
+    <div class="absolute bottom-16 right-12 text-white text-4xl floating-icon" aria-hidden="true">🎨</div>
+    <div class="absolute top-24 right-1/3 text-white text-4xl floating-icon" aria-hidden="true">🖌️</div>
+
+    <div class="absolute bottom-0 left-0 right-0 bg-yellow-300 py-4 overflow-hidden">
+      <div class="whitespace-nowrap animate-marquee">
+        <span class="text-2xl font-bold mr-8 text-gradient">⚙️ you ask we serve ⚙️ you ask we serve ⚙️ you ask we serve ⚙️ you ask we serve ⚙️</span>
+      </div>
+    </div>
+
+    <div class="relative z-10 h-full flex items-center justify-center">
+      <div class="text-center text-white fade-in-section">
+        <h2 class="text-4xl font-bold mb-4">Custom Creations</h2>
+        <p class="text-xl mb-6">Tell us what you need, and we'll make it happen</p>
+        <a href="request.html" class="px-8 py-3 rounded-full font-semibold bg-white text-[#a63a00] hover:bg-gray-100 hover:shadow-glow pulse-btn inline-flex items-center justify-center">Make your request</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-screen-15xl mx-auto px-6">
+
+    <section class="py-16">
+  <div class="flex justify-between items-center mb-12">
+    <h2 class="section-title text-3xl md:text-4xl font-bold">Shop by Category</h2>
+    <a href="explore.html" class="btn-primary-custom px-6 py-3 rounded-full inline-flex items-center justify-center">
+      View All
+    </a>
+  </div>
+
+  <div id="random-categories" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-10">
+    
+  </div>
+
+  <!-- Added spacing between sections -->
+  <div class="mt-16 mb-16"></div>
+
+  <section class="relative bg-sky-200 rounded-3xl py-24 px-8 md:py-32 overflow-hidden story-section">
+    <!-- Fixed height container to prevent layout shifts -->
+    <div class="relative w-full h-[300px] md:h-[350px]">
+      <!-- Bunny image with fixed positioning -->
+      <div class="absolute top-0 left-8 w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-yellow-400 overflow-hidden story-element story-bunny opacity-0">
+        <img src="assets/bunny ou1.png" alt="Decorative bunny image" class="w-full h-full object-cover">
+      </div>
+
+      <!-- Pot image with fixed positioning -->
+      <div class="absolute bottom-0 right-8 w-20 md:w-28 story-element story-pot opacity-0">
+        <img src="assets/pot ou3.png" alt="Decorative pot image" class="w-full h-auto">
+      </div>
+
+      <!-- Cloth image with fixed positioning -->
+      <div class="absolute left-1/4 top-1/2 transform -translate-y-1/2 -translate-x-1/2
+               w-28 md:w-36 pointer-events-none hidden sm:block story-element story-cloth opacity-0">
+        <img src="assets/cloth ou2.png" alt="Decorative cloth image" loading="lazy" decoding="async"
+             class="w-full h-auto object-contain transform -rotate-3">
+      </div>
+
+      <!-- Text content with fixed positioning -->
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="max-w-4xl mx-auto text-center z-10 px-4">
+          <p class="uppercase text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-gray-700 mb-4 story-element story-title opacity-0">
+            Our Story
+          </p>
+          <h2 class="text-2xl md:text-4xl font-extrabold leading-tight text-gray-900 story-element story-heading opacity-0">
+            Born from a passion for creativity, we connect dreamers with artists who bring ideas to life
+          </h2>
+          <p class="mt-4 text-sm md:text-base text-gray-700 story-element story-tagline opacity-0">
+            for every body, anywhere
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+<section class="py-16">
+  <div class="flex justify-between items-center mb-12">
+    <div>
+      <h2 class="section-title">Featured Creations</h2>
+      <p class="text-gray-600 mt-2">Discover unique artworks from our talented community</p>
+    </div>
+    <a href="explore.html" class="btn-primary-custom px-6 py-3 rounded-full inline-flex items-center justify-center">View All</a>
+  </div>
+  <div class="craft-collage">
+    <!-- This will be populated dynamically by js/home.js -->
+  </div>
+</section>
+
+<!-- Craft Image Modal -->
+<div id="craftModal" class="craft-modal">
+  <div class="craft-modal-content">
+    <button class="craft-modal-close">&times;</button>
+    <img id="craftModalImage" src="" alt="Craft image">
+  </div>
+</div>
+
+<script>
+  // Animate craft boxes when they come into view
+  document.addEventListener('DOMContentLoaded', function() {
+    // First check for reduced motion preference
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.craft-box').forEach(box => {
+        box.classList.add('animate');
+      });
+      return;
+    }
+    
+    // Set up GSAP animations for craft boxes if GSAP is available
+    if (window.gsap && window.ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+      
+      // Stagger animation for craft boxes
+      gsap.from('.craft-box', {
+        opacity: 0,
+        y: 30,
+        stagger: 0.1,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: '.craft-collage',
+          start: "top 80%",
+          once: true
+        }
+      });
+    } else {
+      // Fallback to CSS animations using Intersection Observer
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+          }
+        });
+      }, {
+        threshold: 0.1
+      });
+      
+      document.querySelectorAll('.craft-box').forEach(box => {
+        observer.observe(box);
+      });
+    }
+    
+    // Set up modal functionality
+    const modal = document.getElementById('craftModal');
+    const modalImg = document.getElementById('craftModalImage');
+    const closeBtn = document.querySelector('.craft-modal-close');
+    
+    // Open modal when clicking on a craft box
+    document.querySelectorAll('.craft-box').forEach(box => {
+      box.addEventListener('click', function() {
+        const imgSrc = this.querySelector('img').src;
+        modalImg.src = imgSrc;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+      });
+    });
+    
+    // Close modal when clicking the close button
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Re-enable scrolling
+      });
+    }
+    
+    // Close modal when clicking outside the image
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Re-enable scrolling
+      }
+    });
+    
+    // Close modal with escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Re-enable scrolling
+      }
+    });
+  });
+</script>
+
+<style>
+  /* Colorful faded effect border for craft boxes */
+  .craft-box {
+    position: relative;
+    padding: 4px;
+    border-radius: 16px;
+    background: linear-gradient(
+      45deg, 
+      rgba(255, 106, 0, 0.7), 
+      rgba(255, 204, 0, 0.7), 
+      rgba(166, 58, 0, 0.7), 
+      rgba(255, 106, 0, 0.7)
+    );
+    background-size: 300% 300%;
+    animation: gradientBorder 6s ease infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  
+  .craft-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .craft-box img {
+    transition: transform 0.5s ease;
+  }
+  
+  .craft-box:hover img {
+    transform: scale(1.1);
+  }
+  
+  /* Animation for craft boxes when they come into view */
+  .craft-box.animate {
+    animation: fadeInUp 0.6s ease forwards;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes gradientBorder {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* Craft image modal styles */
+  .craft-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .craft-modal.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .craft-modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+  }
+  
+  .craft-modal.active .craft-modal-content {
+    transform: scale(1);
+  }
+  
+  .craft-modal img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+  }
+  
+  .craft-modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 5px;
+  }
+</style>
+  </div>
+
+  <footer class="bg-[#a63a00] text-white text-center py-12 px-4 rounded-t-[30px]">
+    <h3 class="text-2xl font-semibold mb-4">About Crèa</h3>
+    <p class="max-w-3xl mx-auto mb-4 text-lg leading-relaxed">Crèa is a space for creativity, sharing, and exploration. Whether you're browsing for inspiration or building your dream project, we're here to empower your ideas and connect you with a community that values innovation and expression.</p>
+    <div class="text-sm">
+      <p>&copy; 2025 Crèa. All rights reserved.</p>
+    </div>
+  </footer>
+
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[9999] hidden" role="dialog" aria-modal="true" aria-labelledby="modalItemName">
+  <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <img id="modalImage" src="" alt="Enlarged view of a craft item" class="w-full h-auto object-contain flex-grow">
+    <div class="modal-text-content">
+      <h3 id="modalItemName" class="text-2xl font-bold text-gray-800">Item Name</h3>
+      <p class="text-lg text-gray-600 mt-1">
+        by <a id="modalArtistName" href="artistsprofile.html" class="text-blue-600 hover:underline font-semibold">Artist Name</a>
+      </p>
+    </div>
+  </div>
+  <button id="modalCloseBtn" class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition" aria-label="Close">&times;</button>
+</div>
+
+
+
+
+  <script src="js/animations.js"></script>
+  <script type="module" src="js/main.js"></script>
+  <script>
+    // Initialize navbar scroll functionality directly
+    function initNavbarScroll() {
+      const nav = document.querySelector("header#navbar");
+      if (nav) {
+        nav.classList.add("show");
+        let lastY = window.scrollY, ticking = false;
+        function onScroll() {
+          const y = window.scrollY;
+          if (y > lastY && y > 10) {
+            nav.classList.remove("show");
+            nav.classList.add("hide");
+          } else {
+            nav.classList.remove("hide");
+            nav.classList.add("show");
+          }
+          lastY = y;
+          ticking = false;
+        }
+        window.addEventListener("scroll", () => {
+          if (!ticking) {
+            requestAnimationFrame(onScroll);
+            ticking = true;
+          }
+        }, { passive: true });
+      }
+    }
+    
+    // Fetch popular artists from the API
+    async function loadPopularArtists() {
+      try {
+        const response = await fetch('/api/home/popular-artists');
+        if (response.ok) {
+          let artists = await response.json();
+          const artistsContainer = document.getElementById('popular-artists');
+          
+          if (artistsContainer) {
+            if (artists.length === 0) {
+              artistsContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">No artists found.</p>';
+              return;
+            }
+            
+            // Ensure exactly 4 cards are shown
+            artists = artists.slice(0, 4);
+            
+            artistsContainer.innerHTML = artists.map(artist => `
+              <a href="artistprofile.html?id=${artist.id}" class="artist-card-link">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift">
+                  <img src="${artist.profile_pic_url || 'assets/a1 cali.png'}" alt="${artist.username || 'Artist'}" class="w-full h-48 object-cover" />
+                  <div class="p-6">
+                    <h3 class="text-xl font-semibold text-center">${artist.username || 'Artist'}</h3>
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <p class="text-lg font-bold text-[#a63a00]">${artist.stats?.orders || 0}</p>
+                        <p class="text-xs text-gray-600">orders</p>
+                      </div>
+                      <div>
+                        <p class="text-lg font-bold text-[#a63a00]">${artist.stats?.creations || 0}</p>
+                        <p class="text-xs text-gray-600">creations</p>
+                      </div>
+                      <div>
+                        <p class="text-lg font-bold text-[#a63a00]">${Math.floor((artist.stats?.experience || 0) / 31536000)} yrs</p>
+                        <p class="text-xs text-gray-600">experience</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            `).join('');
+          }
+        } else {
+          console.error('Failed to fetch popular artists');
+        }
+      } catch (error) {
+        console.error('Error loading popular artists:', error);
+      }
+    }
+
+    // Fetch popular categories from the API
+    async function loadRandomCategories() {
+      try {
+        const response = await fetch('/api/home/random-categories');
+        if (response.ok) {
+          let categories = await response.json();
+          const categoriesContainer = document.getElementById('random-categories');
+          
+          if (categoriesContainer) {
+            if (categories.length === 0) {
+              categoriesContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">No categories found.</p>';
+              return;
+            }
+            
+            // Ensure exactly 4 cards are shown
+            categories = categories.slice(0, 4);
+            
+            categoriesContainer.innerHTML = categories.map(category => `
+              <a href="explore.html?category=${encodeURIComponent(category.name)}" class="block">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift">
+                  <img src="assets/${category.name}.png" alt="${category.name}" class="w-full h-64 object-cover" />
+                  <div class="p-6">
+                    <h3 class="text-xl font-semibold text-center">${category.name}</h3>
+                  </div>
+                </div>
+              </a>
+            `).join('');
+          }
+        } else {
+          console.error('Failed to fetch popular categories');
+        }
+      } catch (error) {
+        console.error('Error loading popular categories:', error);
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const carousel = document.getElementById('carousel');
+      if (carousel) {
+        const slides = carousel.querySelectorAll('img');
+        const slideCount = slides.length;
+        let currentSlide = 0;
+
+        setInterval(() => {
+          currentSlide = (currentSlide + 1) % slideCount;
+          carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }, 3000); // Change slide every 3 seconds
+      }
+
+      // Try the module function first, fallback to direct initialization
+      if (window.initNavbar) {
+        window.initNavbar();
+      } else {
+        initNavbarScroll();
+      }
+      
+      // Load popular artists and random categories
+      loadPopularArtists();
+      loadRandomCategories();
+    });
+  </script>
+  <script type="module" src="js/home.js"></script>
+</body>
+</html>

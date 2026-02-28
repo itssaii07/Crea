@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>crèa your-activity</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* force all visible text to appear lowercase */
+    * {
+      text-transform: lowercase !important;
+    }
+
+    /* Theme variables (light by default) */
+    :root {
+      --accent-1: #a63a00;
+      --accent-2: #ff8a00;
+      --bg-1: #f7f4ee;
+      --bg-2: #efece2;
+      --text: #171717;
+      --muted: #6b6b6b;
+      --glass: rgba(255, 255, 255, 0.56);
+      --card-shadow: 0 10px 36px rgba(20, 20, 20, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --noise: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="n"><feTurbulence baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.03" fill="black"/></svg>');
+
+      /* back-button brand tokens (match original back button colors) */
+      --brand: var(--accent-1);
+      /* #a63a00 */
+      --brand-900: #922600;
+      /* darker terracotta */
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(800px 400px at 6% 12%, rgba(255, 154, 71, 0.06), transparent 8%),
+        radial-gradient(700px 350px at 92% 86%, rgba(24, 90, 255, 0.03), transparent 8%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior-y: contain;
+      background-attachment: fixed;
+    }
+
+    /* subtle paper/texture overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: var(--noise);
+      opacity: 0.7;
+      mix-blend-mode: overlay;
+      z-index: 2;
+    }
+
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      position: relative;
+      z-index: 10
+    }
+
+    /* Header */
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px
+    }
+
+    .brand-title {
+      display: flex;
+      gap: 14px;
+      align-items: center
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12)
+    }
+
+    .title-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      padding: 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(6px)
+    }
+
+    .icon-btn:hover {
+      transform: translateY(-3px)
+    }
+
+    /* tabs */
+    .tabs {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      margin-top: 18px
+    }
+
+    .nav-button {
+      position: relative;
+      padding: 12px 22px;
+      border-radius: 999px;
+      background: transparent;
+      border: 0;
+      font-weight: 700;
+      color: var(--accent-1);
+      cursor: pointer;
+      outline: none;
+      transition: all .28s cubic-bezier(.2, .9, .3, 1);
+      font-family: 'Playfair Display', serif
+    }
+
+    .nav-button::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      bottom: -8px;
+      height: 4px;
+      width: 64%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      transition: transform .28s cubic-bezier(.2, .9, .3, 1), opacity .28s;
+      opacity: 0
+    }
+
+    .nav-button.active {
+      color: var(--accent-2)
+    }
+
+    .nav-button.active::after {
+      transform: translateX(-50%) scaleX(1);
+      opacity: 1
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02));
+      margin: 22px 0
+    }
+
+    /* Art brush SVG behind content */
+    .art-brush {
+      position: fixed;
+      left: -120px;
+      top: 40%;
+      opacity: 0.12;
+      transform: rotate(-12deg);
+      z-index: 1;
+      pointer-events: none
+    }
+
+    /* Cards */
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.35));
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(8px);
+      transform: translateY(18px) scale(.995);
+      opacity: 0;
+      transition: transform .6s cubic-bezier(.2, .9, .3, 1), opacity .6s ease, box-shadow .2s;
+      border: 1px solid var(--glass-border);
+      position: relative;
+      overflow: hidden
+    }
+
+    .dark .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    }
+
+    .card.in-view {
+      transform: translateY(0) scale(1);
+      opacity: 1
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 26px 60px rgba(2, 6, 23, 0.18)
+    }
+
+    .thumb {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      object-fit: cover;
+      margin-right: 16px;
+      flex-shrink: 0;
+    }
+
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .category-badge {
+      display: inline-block;
+      background: #f0d9c4;
+      color: var(--brand);
+      font-size: .7em;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 4px;
+      width: fit-content;
+      white-space: nowrap;
+    }
+
+    .card h4 {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .card p {
+      font-size: .85em;
+      color: #666;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .price {
+      font-weight: 700;
+      color: #16a34a;
+    }
+
+    /* decorative corner art */
+    .corner-art {
+      position: absolute;
+      right: -30px;
+      top: -40px;
+      width: 160px;
+      height: 160px;
+      background: conic-gradient(from 90deg, var(--accent-1), var(--accent-2));
+      filter: blur(34px);
+      opacity: 0.06;
+      pointer-events: none
+    }
+
+    .price-pill {
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      color: white;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12)
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center
+    }
+
+    .checkbox-like {
+      width: 46px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      cursor: pointer
+    }
+
+    /* placeholder when dragging */
+    .placeholder {
+      height: 92px;
+      border-radius: 12px;
+      border: 2px dashed rgba(0, 0, 0, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      display: block
+    }
+
+    /* confetti */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transform-origin: center;
+      border-radius: 2px
+    }
+
+    /* responsive */
+    @media (max-width:640px) {
+      .thumb {
+        width: 64px;
+        height: 64px
+      }
+
+      .card {
+        padding: 12px;
+        border-radius: 12px
+      }
+
+      .nav-button {
+        padding: 10px 14px
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+  <!-- 🔙 Back Button (inserted to match the original exact position & styling) -->
+  <div class="px-6 md:px-12 py-4 relative z-10">
+    <button id="backButton"
+      class="text-white bg-[var(--brand)] px-4 py-2 rounded-full shadow hover:bg-[var(--brand-900)] transition flex items-center gap-2">
+      <i class="fas fa-arrow-left"></i><span>back</span>
+    </button>
+  </div>
+
+  <!-- Decorative brush SVG (background) -->
+  <svg class="art-brush" width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true">
+    <defs>
+      <linearGradient id="g1" x1="0" x2="1">
+        <stop offset="0" stop-color="#ffd9b3" />
+        <stop offset="1" stop-color="#ffa06b" />
+      </linearGradient>
+    </defs>
+    <path d="M40 290 C140 120, 320 60, 520 120 C420 360, 220 420, 40 290 Z" fill="url(#g1)"></path>
+  </svg>
+
+  <div class="page-wrap">
+    <div class="header-row">
+      <div class="brand-title">
+
+        <div class="brand-mark">c</div>
+        <div>
+          <div class="title-text">your activity</div>
+          <div style="font-size:12px;color:var(--muted)">crèa — curated. created. cherished.</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="soundToggle" class="icon-btn" title="Toggle sound"><i class="fas fa-volume-up"></i></button>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Activity Tabs">
+      <button onclick="showSection('requests', this)" class="nav-button active" role="tab">requests</button>
+      <button onclick="showSection('creations', this)" class="nav-button" role="tab">creations</button>
+      <button onclick="showSection('orders', this)" class="nav-button" role="tab">orders</button>
+    </div>
+
+    <div class="section-divider" aria-hidden="true"></div>
+
+    <div class="fade-section">
+      <div id="requests">
+        <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent-1);margin-bottom:12px">
+          Requests</h2>
+        <div id="requestCards" class="space-y-4">
+
+        </div>
+      </div>
+
+      <div id="creations" class="hidden">
+        <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent-1);margin-bottom:12px">
+          Creations</h2>
+        <div id="creationCards" class="space-y-4">
+
+        </div>
+      </div>
+
+      <div id="orders" class="hidden">
+        <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent-1);margin-bottom:12px">Orders
+        </h2>
+        <div id="orderCards" class="space-y-4 text-center text-gray-500 min-h-[140px]">
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script type="module">
+    import authService from './js/auth.js';
+
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = await authService.getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      const response = await authService.apiCall('/api/activities/history?limit=200');
+
+      if (response.ok) {
+        const { activities } = await response.json();
+        renderActivities(activities);
+      }
+    });
+
+    function renderActivities(activities) {
+      const requestCards = document.getElementById('requestCards');
+      const creationCards = document.getElementById('creationCards');
+      const orderCards = document.getElementById('orderCards');
+
+      requestCards.innerHTML = '';
+      creationCards.innerHTML = '';
+      orderCards.innerHTML = '';
+
+      if (!activities || activities.length === 0) {
+        const emptyMsg = '<p class="text-center text-gray-500">No activity found.</p>';
+        requestCards.innerHTML = emptyMsg;
+        creationCards.innerHTML = emptyMsg;
+        orderCards.innerHTML = emptyMsg;
+        return;
+      }
+
+      activities.forEach(activity => {
+        const type = activity.activity_type;
+        const meta = activity.metadata || {};
+
+        if (type === 'request_created') {
+          // Show in Requests for the requester
+          if (activity.user_id === currentUser.id) {
+            requestCards.innerHTML += createActivityCard(activity);
+          }
+        }
+
+        if (type === 'request_completed') {
+          // For the artist (creator) show in creations; for the requester show in orders
+          if (meta.artist_id && meta.artist_id === currentUser.id) {
+            creationCards.innerHTML += createActivityCard(activity);
+          } else {
+            orderCards.innerHTML += createActivityCard(activity);
+          }
+        }
+      });
+
+      // If there are completed requests, remove corresponding 'request_created' cards for the requester
+      // (Frontend-only filter based on same request_id if present)
+      const completedIds = new Set(
+        activities
+          .filter(a => a.activity_type === 'request_completed' && a.metadata?.request_id)
+          .map(a => a.metadata.request_id)
+      );
+      if (completedIds.size > 0) {
+        requestCards.querySelectorAll('.card').forEach(card => {
+          const rid = card.getAttribute('data-request-id');
+          if (rid && completedIds.has(rid)) {
+            card.remove();
+          }
+        });
+      }
+    }
+
+    function createActivityCard(activity) {
+      const meta = activity.metadata || {};
+      const title = meta.title || 'No Title';
+      const category = meta.category || 'N/A';
+      const location = meta.location || 'N/A';
+      const price = meta.price || 'N/A';
+      const img = meta.imageUrl || 'https://placehold.co/80x80?text=Request';
+      const rid = meta.request_id || '';
+
+      return `
+            <div class="card" data-id="${activity.id}" data-request-id="${rid}">
+                <img class="thumb" src="${img}" alt="Request image">
+                <div class="card-content">
+                    <span class="category-badge">${category}</span>
+                    <h4>${title}</h4>
+                    <p><i class="fas fa-map-marker-alt text-red-500"></i> ${location}</p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i> ${price}</p>
+                </div>
+            </div>
+        `;
+    }
+
+  </script>
+  <script>
+    /* --- helpers --- */
+    function setSound(enabled) {
+      localStorage.setItem('crea_sound', enabled ? '1' : '0');
+      document.getElementById('soundToggle').innerHTML = enabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+    }
+
+    function initThemeAndSound() {
+      const savedSound = localStorage.getItem('crea_sound');
+      const soundOn = (savedSound === null) ? true : savedSound === '1';
+      setSound(soundOn);
+      document.getElementById('soundToggle').addEventListener('click', () => setSound(!(localStorage.getItem('crea_sound') === '1')));
+    }
+
+    /* --- section tabs --- */
+    function showSection(sectionId, button) {
+      ['requests', 'creations', 'orders'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(sectionId).classList.remove('hidden');
+      document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+      if (button) button.classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initThemeAndSound();
+      showSection('requests', document.querySelector('.nav-button.active'));
+      document.getElementById('backButton').addEventListener('click', () => {
+        history.back();
+      });
+    });
+  </script>
+</body>
+
+</html>
